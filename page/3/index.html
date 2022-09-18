@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="/null">
     <link rel="icon" type="image/png" href="/null">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-    <title>归档 - Hexo</title>
+    <title>Hexo</title>
     
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     
@@ -346,13 +346,6 @@ header .header__right .dropdown-menus .dropdown-menu {
     
 
     
-        <!--
-        <link rel="stylesheet" href="/css/page.css" media="print"
-            onload="this.media='all';this.onload=null">
-        <noscript>-->
-            <link rel="stylesheet" href="/css/page.css">
-        <!--</noscript>-->
-    
     
     <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
     <noscript>
@@ -443,84 +436,76 @@ header .header__right .dropdown-menus .dropdown-menu {
         <div class="mg-top">
             
 
-<article class="page">
-  <div class="archive-list">
-    <p class="h4">22 posts in total.</p>
-    <hr>
-    
-    
+<div class="post-card-center">
+<div class="post-card-main">
+
+    <div class="index-card">
       
-        
-        <p class="h5">2022</p>
+      <article class="index-card-info">
+        <h3 class="index-header">
+          <a href="/2022/09/18/Java%20%20Commons%20Collection%202%E5%88%86%E6%9E%90/">
+          
+          Java  Commons Collection 2分析</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            环境搭建CC2使用的是javassist和PriorityQueue来构造利用链；并且使用的是commons-collections-4.0版本，该版本删除了lazyMap的decode方法，所以CC1不用4.0版本；而3.1-3.2.1版本中TransformingComparator并没有去实现Serializable接口，也就是说这是不可以被序列化的，所以CC2不用3.x版本。
+在pom.x
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-09-18 21:41" pubdate>
+                2022-09-18
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+    <div class="index-card">
       
-      <a href="/2022/09/18/Jackson%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%20RCE/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Jackson 反序列化 RCE</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Jackson%20%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Jackson 简单学习</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Fastjson%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%20RCE/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Fastjson 反序列化RCE</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Fastjson%201.2.24%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AF%BC%E8%87%B4RCE%EF%BC%88CVE-2017-18349%EF%BC%89/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Fastjson 1.2.24 反序列化RCE（CVE-2017-18349）</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Fastjson%20%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Fastjson 简单学习</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Log4j2%20JNDI%20%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88CVE-2021-44228%EF%BC%89/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Log4j2 JNDI 注入漏洞分析（CVE-2021-44228）</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Java%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Java序列化与反序列化</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Java%E5%8F%8D%E5%B0%84/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Java反射</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Java%20%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Java 命令执行</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
-      
-      <a href="/2022/09/18/Java%20%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" class="list-group-item list-group-item-action">
-        <span class="archive-post-title">Java 反射机制</span>
-        <time style="float: right;">09-18</time>
-      </a>
-    
+      <article class="index-card-info">
+        <h3 class="index-header">
+          <a href="/2022/09/18/Java%20%20Commons%20Collection%201%E5%88%86%E6%9E%90/">
+          
+          Java  Commons Collection 1分析</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            前言Java集合框架是JDK1.2中的一个重要补充。它添加了许多功能强大的数据结构，加快了最重要的Java应用程序的开发。从那时起，它已成为Java中公认的集合处理标准。Commons集合试图通过提供新的接口、实现和实用程序来构建JDK类。
+Commons Collections是反序列化漏洞学习过程中不可缺少的一部分，Apache Commons Collections是Java中应用广泛的一个
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-09-18 21:40" pubdate>
+                2022-09-18
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+</div>
+</div>
 
     <nav aria-label="navigation">
       <span class="pagination" id="pagination">
-        <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/2/">&gt;</a>
+        <a class="extend prev" rel="prev" href="/page/2/">&lt;</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
       </span>
     </nav>
 
-</div>
-</article>
         </div>
         
 <footer class="text-center">

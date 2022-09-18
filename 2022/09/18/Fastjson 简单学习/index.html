@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>Fastjson 简单学习 - Hexo</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>Fastjson 简单学习</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-18 22:26" pubdate>
+          2022-09-18
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 2.4k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JSON"><span class="toc-number">1.</span> <span class="toc-text">JSON</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JSON-%E8%AF%AD%E6%B3%95%E8%A7%84%E5%88%99"><span class="toc-number">1.1.</span> <span class="toc-text">JSON 语法规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSON-%E6%B3%A8%E9%87%8A"><span class="toc-number">1.2.</span> <span class="toc-text">JSON 注释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-JSON-%E7%9A%84%E5%88%9B%E5%BB%BA%E5%92%8C%E8%A7%A3%E6%9E%90"><span class="toc-number">1.3.</span> <span class="toc-text">Java JSON 的创建和解析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fastjson"><span class="toc-number">2.</span> <span class="toc-text">Fastjson</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">2.1.</span> <span class="toc-text">序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">2.2.</span> <span class="toc-text">反序列化</span></a></li></ol></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h2><p>JSON 全称“JavaScript Object Notation”，译为“JavaScript 对象表示法”，是一种轻量级的、基于文本的、开放的数据交换格式。（数据交换是指两个设别之间建立连接并相互传递数据的过程。）</p>
+<p>JSON 是一种纯字符串形式的数据，它本身不提供任何方法（函数），采用独立于变成语言的文本格式来存储和表示数据，易于程序员阅读与编写，同时也易于计算机解析和生成，通常同于在 Web 客户端与 Web服务器端之间传递数据。</p>
+<h3 id="JSON-语法规则"><a href="#JSON-语法规则" class="headerlink" title="JSON 语法规则"></a>JSON 语法规则</h3><p>所有的 JSON 数据都需要包裹在一个花括号中。</p>
+<p>JSON 数据是以键值对的形式书写，键与值之间用<code>:</code>分隔；<br>键表示数据的名称，需要以字符串的形式定义，并用双引号包裹；<br>值可以是以下数据类型：</p>
+<ul>
+<li>整型、浮点型</li>
+<li>字符串（双引号包裹）</li>
+<li>Boolean</li>
+<li>数组（定义在<code>[ ]</code>中，元素可以是任意类型，用<code>,</code>隔开）</li>
+<li>对象（定义在<code>&#123; &#125;</code>中，内容为键值对形式，值可以是任意类型）</li>
+<li>null</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;number&quot;</span><span class="punctuation">:</span><span class="number">123</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;float&quot;</span><span class="punctuation">:</span><span class="number">3.14</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;string&quot;</span><span class="punctuation">:</span><span class="string">&quot;blckder02&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;bool&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;array&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">		<span class="string">&quot;employees&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;张三&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">18</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;李四&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;age&quot;</span><span class="punctuation">:</span> <span class="number">20</span><span class="punctuation">&#125;</span>，</span><br><span class="line">		<span class="punctuation">[</span></span><br><span class="line">			<span class="number">3.14</span><span class="punctuation">,</span></span><br><span class="line">			<span class="literal"><span class="keyword">true</span></span></span><br><span class="line">		<span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">		<span class="literal"><span class="keyword">null</span></span></span><br><span class="line">	<span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;object&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">		<span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;blckder02&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;age&quot;</span><span class="punctuation">:</span><span class="number">21</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;language&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">			<span class="string">&quot;PHP&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="string">&quot;Java&quot;</span></span><br><span class="line">		<span class="punctuation">]</span></span><br><span class="line">		<span class="attr">&quot;obj&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">			<span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;ghtwf01&quot;</span><span class="punctuation">,</span></span><br><span class="line">			<span class="attr">&quot;age&quot;</span><span class="punctuation">:</span><span class="number">21</span></span><br><span class="line">		<span class="punctuation">&#125;</span></span><br><span class="line">	<span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>（最后一个值后面都不写<code>,</code>。）</p>
+<h3 id="JSON-注释"><a href="#JSON-注释" class="headerlink" title="JSON 注释"></a>JSON 注释</h3><p>通过添加同名键，并在同名键前面加上特殊符号来表示注释，如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;@name&quot;</span><span class="punctuation">:</span><span class="string">&quot;这是我的 id&quot;</span><span class="punctuation">,</span>		<span class="comment">//这一行代码是注释（这句话不算）</span></span><br><span class="line">	<span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;blckder02&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;_blog&quot;</span><span class="punctuation">:</span><span class="string">&quot;这是我的博客&quot;</span><span class="punctuation">,</span>	<span class="comment">//这一行代码是注释</span></span><br><span class="line">	<span class="attr">&quot;blog&quot;</span><span class="punctuation">:</span><span class="string">&quot;http://www.blckder02.cn&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>特殊符号可以是：<code>@</code>、<code>#</code>、<code>?</code>、<code>_</code>、<code>/</code>等，最好避免使用<code>[、 ]、 &#123;、 &#125;、：</code>等 JSON 语法里常用的符号。</p>
+<h3 id="Java-JSON-的创建和解析"><a href="#Java-JSON-的创建和解析" class="headerlink" title="Java JSON 的创建和解析"></a>Java JSON 的创建和解析</h3><p>Java 中没有内置任何处理 JSON 数据的函数或库，所以我们需要借助一些开源的库来实现 JSON 数据的创建和解析，比较常用的有 JSON.simple、Jackson、Gson、Moshi 、Fastjson等；<br>这里使用 Fastjson 作演示。</p>
+<p>导入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.24<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>定义一个实体类，必须有无参构造函数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> String city;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Integer <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(Integer age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getCity</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> city;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setCity</span><span class="params">(String city)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.city = city;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;User&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, id=&quot;</span> + age +</span><br><span class="line">                <span class="string">&quot;, city=&#x27;&quot;</span> + city + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>数据转换：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JsonDemo1</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.setName(<span class="string">&quot;blckder02&quot;</span>);</span><br><span class="line">        user.setAge(<span class="number">21</span>);</span><br><span class="line">        user.setCity(<span class="string">&quot;四川&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------将 Java 对象转换为 JSON 数据----------&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> JSON.toJSONString(user);</span><br><span class="line">        System.out.println(jsonStr);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------将 JSON 数据转换为 Java 对象----------&quot;</span>);</span><br><span class="line">        <span class="type">User</span> <span class="variable">newUser</span> <span class="operator">=</span> JSON.parseObject(jsonStr, User.class);</span><br><span class="line">        System.out.println(newUser);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/./images/1661308817184.png" alt="enter description here"></p>
+<h2 id="Fastjson"><a href="#Fastjson" class="headerlink" title="Fastjson"></a>Fastjson</h2><p>Fastjson是阿里巴巴的开源JSON解析库，它可以解析JSON格式的字符串，支持将 Java 对象序列化为JSON字符串，也可以将JSON字符串反序列化为 Java 对象。具有执行效率高的特点，应用范围广泛。</p>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://github.com/alibaba/fastjson/">https://github.com/alibaba/fastjson/</a></p>
+<h3 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h3><p>Fastjson 中，序列化函数有<code>toJSONString()</code>，有很多重载方法；</p>
+<p>在实体类的set、get方法中添加输出：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> String city;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;getName()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;setName()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Integer <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;getAge()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(Integer age)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;setAge()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getCity</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;getCity()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> city;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setCity</span><span class="params">(String city)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;setCity()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.city = city;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;User&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, age=&quot;</span> + age +</span><br><span class="line">                <span class="string">&quot;, city=&#x27;&quot;</span> + city + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>传入不同的参数进行序列化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JsonDemo1</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------将 Java 对象转换为 JSON 数据-------------------&quot;</span>);</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.setName(<span class="string">&quot;blckder02&quot;</span>);</span><br><span class="line">        user.setAge(<span class="number">21</span>);</span><br><span class="line">        user.setCity(<span class="string">&quot;四川&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;--------------- toJSONString(user) ------------&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr1</span> <span class="operator">=</span> JSON.toJSONString(user);</span><br><span class="line">        System.out.println(jsonStr1);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;--------- toJSONString(user, SerializerFeature.WriteClassName) --------&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr2</span> <span class="operator">=</span> JSON.toJSONString(user, SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(jsonStr2);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：<br><img src="/./images/1661327264726.png" alt="enter description here"></p>
+<p>可以看到，当给<code>toJSONString()</code>方法传入第二个参数<code>SerializerFeature.WriteClassName</code>时，返回的 JSON 字符串中会多出一个<code>@type</code>字段，而它的值就是我们传入的 User 类。</p>
+<h3 id="反序列化"><a href="#反序列化" class="headerlink" title="反序列化"></a>反序列化</h3><p>Fastjson 中，反序列化的函数有<code>parse()</code>和<code>parseObject()</code>，它们分别都有很多重载的方法。</p>
+<p>用不同的方法进行反序列化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> entity.User;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JsonDemo1</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------将 JSON 数据转换为 Java 对象--------------------&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;age\&quot;:21,\&quot;city\&quot;:\&quot;四川\&quot;,\&quot;name\&quot;:\&quot;blckder02\&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;--------- parseObject(jsonStr, User.class) --------&quot;</span>);</span><br><span class="line">        <span class="type">User</span> <span class="variable">newUser1</span> <span class="operator">=</span> JSON.parseObject(jsonStr, User.class);</span><br><span class="line">        System.out.println(newUser1);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------- parseObject(jsonStr) -------------&quot;</span>);</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">newUser2</span> <span class="operator">=</span> JSON.parseObject(jsonStr);</span><br><span class="line">        System.out.println(newUser2);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;------------------ parse(jsonStr) -----------------&quot;</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">newUser3</span> <span class="operator">=</span>  JSON.parse(jsonStr);</span><br><span class="line">        System.out.println(newUser3);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------- @type ----------------------&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">newjsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;entity.User\&quot;,\&quot;age\&quot;:21,\&quot;city\&quot;:\&quot;四川\&quot;,\&quot;name\&quot;:\&quot;blckder02\&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        Object newUser4= JSON.parse(newjsonStr);</span><br><span class="line">        System.out.println(newUser4);</span><br><span class="line"></span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">newUser5</span> <span class="operator">=</span> JSON.parseObject(newjsonStr);</span><br><span class="line">        System.out.println(newUser5);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：<br><img src="/./images/1661328389853.png" alt="enter description here"></p>
+<p>从结果中可以看到，当给<code>parseObject()</code>方法传入两个参数时，返回的结果是我们第二个参数指定的<code>User</code>类型，并且调用了它的 set 方法；<br>当只给<code>parseObject()</code>方法传入 JSON 字符串时，返回的结果是 JSONObject 类型，不调用 set 方法；<br>当使用<code>parse()</code>进行反序列化时，返回的结果是 Object 类型，不调用 set 方法；<br>但是如果 JSON 字符串中包含<code>@type</code>字段，<code>parse()</code>反序列化的结果就是<code>@type</code>字段中声明的类型，并且调用它的 set 方法；<code>parseObject()</code>方法效果一样，只是比<code>parse()</code>多调用了一次<code>toJSON()</code>，调用了全部 get 方法。<br><img src="/./images/1661328107368.png" alt="enter description here"></p>
+<p>那么，如果反序列的内容是可控的，我们就可以在 JSON 字符串前面添加<code>@type</code>字段来指定类，并调用它的 set &#x2F;get 方法，利用 set &#x2F; get 方法来触发恶意代码，就能进行利用。<br>（给<code>parseObject()</code>方法传入第二个参数比较难利用。）</p>
+<p><strong>反序列化调用 set、get的特点</strong><br>对实体类稍作修改，把<code>cities</code>定义为<code>Properties</code>类型，并且不添加它的 set 方法；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Properties;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> Properties cities;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;getName()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;setName()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Integer <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;getAge()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(Integer age)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;setAge()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Properties <span class="title function_">getCities</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;getCities()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> cities;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;User&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, age=&quot;</span> + age +</span><br><span class="line">                <span class="string">&quot;, cities=&quot;</span> + cities +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反序列化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.Feature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JsonDemo2</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;---------------------- @type ----------------------&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">newjsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;entity.User\&quot;,\&quot;age\&quot;:21,\&quot;cities\&quot;:&#123; &#125;,\&quot;name\&quot;:\&quot;blckder02\&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        Object newUser4= JSON.parse(newjsonStr, Feature.SupportNonPublicField);</span><br><span class="line">        System.out.println(newUser4);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;----------------------------&quot;</span>);</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">newUser5</span> <span class="operator">=</span> JSON.parseObject(newjsonStr);</span><br><span class="line">        System.out.println(newUser5);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为没有给<code>cities</code>设置 set 方法，所以如果想要往里传值，就需要添加<code>Feature.SupportNonPublicField</code>参数。</p>
+<p>先看一下运行结果：<br><img src="/./images/1661334036884.png" alt="enter description here"></p>
+<p><code>parseObject()</code>没有添加<code>Feature.SupportNonPublicField</code>参数，所以就没有返回<code>cities</code>属性。</p>
+<p>两个方法还有不同之处就在于<code>parse()</code>在调用 set 方法时调用了<code>getCities()</code>，而<code>parseObject()</code>除此之外，还将所有 get 方法都调用了一遍。</p>
+<p>接下来慢慢看。</p>
+<p>跟进反序列化过程到<code>JavaBeanInfo.build()</code>中可以看到，先反射获取了所有方法，然后经过重重判断，把满足条件的 set 方法添加到了<code>fieldList</code>中；<br><img src="/./images/1661333500055.png" alt="enter description here"></p>
+<p>然后在下面的 for 循环中，又把满足条件的 get 方法也添加到<code>fieldList</code>中；<br><img src="/./images/1661334731887.png" alt="enter description here"></p>
+<p><img src="/./images/1661334790322.png" alt="enter description here"></p>
+<p>if 中的判断语句如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (</span><br><span class="line">	methodName.length() &gt;= <span class="number">4</span> &amp;&amp;		<span class="comment">//方法名长度大于等于4</span></span><br><span class="line">	!Modifier.isStatic(method.getModifiers()) &amp;&amp; 		<span class="comment">//不是静态方法</span></span><br><span class="line">	methodName.startsWith(<span class="string">&quot;get&quot;</span>) &amp;&amp; 		<span class="comment">//方法名以 get 开头</span></span><br><span class="line">	Character.isUpperCase(methodName.charAt(<span class="number">3</span>)) &amp;&amp;		<span class="comment">//方法名第四个字母为大写</span></span><br><span class="line">	method.getParameterTypes().length == <span class="number">0</span> &amp;&amp;		<span class="comment">//方法没有参数传入</span></span><br><span class="line">	(Collection.class.isAssignableFrom(method.getReturnType()) || 		<span class="comment">//是这些接口的实现类或其子类</span></span><br><span class="line">	Map.class.isAssignableFrom(method.getReturnType()) || </span><br><span class="line">	AtomicBoolean.class == method.getReturnType() || </span><br><span class="line">	AtomicInteger.class == method.getReturnType() || </span><br><span class="line">	AtomicLong.class == method.getReturnType())</span><br><span class="line">	) </span><br></pre></td></tr></table></figure>
+<p>而<code>getCities()</code>方法刚好就满足这些条件，所以会被调用。</p>
+<p>至于<code>parseObject()</code>为什么会把所有 get 方法都调用一遍，是因为在他调用<code>toJSON()</code>后，会把所有 get 方法都记录下来，然后反射调用。<br><img src="/./images/1661335649680.png" alt="enter description here"></p>
+<p>参考连接：<br><a target="_blank" rel="noopener" href="https://paper.seebug.org/1274/">https://paper.seebug.org/1274/</a><br><a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1714799253369409875&amp;wfr=spider&amp;for=pc">https://baijiahao.baidu.com/s?id=1714799253369409875&amp;wfr=spider&amp;for=pc</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/nice0e3/p/14601670.html#0x02-fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0">https://www.cnblogs.com/nice0e3/p/14601670.html#0x02-fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0</a></p>
+
+      </div>
+    </div>
+</div>
+
+<div class="post-category">
+
+    <div id="p-meta-i">
+        
+          
+              
+                <a class="hover-with-bg" href="/tags/%E6%96%B0%E5%BB%BA-%E6%A8%A1%E6%9D%BF-%E5%B0%8F%E4%B9%A6%E5%8C%A0/"># 新建,模板,小书匠</a>
+              
+          
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/18/Fastjson%20%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0/">http://example.com/2022/09/18/Fastjson%20%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>

