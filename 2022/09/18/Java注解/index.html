@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>Java注解 - Hexo</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>Java注解</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-18 21:42" pubdate>
+          2022-09-18
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 3.4k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%AE%E6%B3%A8%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text">内置注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%83%E6%B3%A8%E8%A7%A3"><span class="toc-number">3.</span> <span class="toc-text">元注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%B1%9E%E6%80%A7"><span class="toc-number">4.</span> <span class="toc-text">注解的属性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%A8%E8%A7%A3"><span class="toc-number">5.</span> <span class="toc-text">自定义注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-number">6.</span> <span class="toc-text">使用注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B"><span class="toc-number">7.</span> <span class="toc-text">案例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">小结</span></a></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>什么是注解？跟注释一样吗？<br>注解和注释可不一样，注释是用文字描述、解释程序，是给程序员看的，为了让程序员更快速的了解程序功能；<br>而注解是一种代码级别的说明，用来说明程序，是给计算机看的，可理解为给程序贴上了一个标签。</p>
+<p>百度百科是这样解释的：</p>
+<ul>
+<li>注解，可以看作是对 一个 类&#x2F;方法 的一个扩展的模版，每个 类&#x2F;方法 按照注解类中的规则，来为 类&#x2F;方法 注解不同的参数，在用到的地方可以得到不同的 类&#x2F;方法 中注解的各种参数与值；</li>
+<li>从JDK5开始，java增加了对元数据（描述数据属性的信息）的支持。其实说白就是代码里的特殊标志，这些标志可以在编译，类加载，运行时被读取，并执行相应的处理，以便于其他工具补充信息或者进行部署。</li>
+</ul>
+<p><strong>使用格式：</strong><code>@注解名称[(属性值)]</code></p>
+<p><strong>作用分类：</strong></p>
+<ol>
+<li>编写文档：通过代码里标识的元数据生成文档【生成文档doc文档】</li>
+<li>代码分析：通过代码里标识的元数据对代码进行分析【使用反射】</li>
+<li>编译检查：通过代码里标识的元数据让编译器能够实现基本的编译检查【Override】</li>
+</ol>
+<p>这里简单演示一下生成文档：<br>新建一个类，里面写一个add()方法，并且添加了一些文档注释，文档注释里面又使用了一些注解；<br>这些注解可以被抽取到Javadoc文档中；<br><img src="/./images/1627403338102.png" alt="enter description here">[1]</p>
+<p>将<code>AnnoDemo1.java</code>文件单独保存到一个文件夹中，在命令行中执行<code>javadoc AnnoDemo1.java</code>，就生成了许多html文档；<br><img src="/./images/1627403807705.png" alt="enter description here">[2]</p>
+<p>打开<code>index.html</code>，里面就可以看到我们创建的类和方法的信息，包括我们写的文档注释和使用的注解。<br><img src="/./images/1627405348160.png" alt="enter description here">[3]</p>
+<p>后面两种作用下面慢慢演示。</p>
+<h2 id="内置注解"><a href="#内置注解" class="headerlink" title="内置注解"></a>内置注解</h2><p>在<code>java.lang</code>包中，可理解为JDK中预定义的一些注解；</p>
+<p>内置注解有以下五类：<br><strong>1. @Override</strong><br>检测被该注解标注的方法是否是继承自父类（接口）的，可以确保子类确实重写了父类的方法，避免出现低级错误；</p>
+<p>添加一个<code>toString()</code>方法，这个方法使用了 <code>@Override</code>注解，那么就要检测这个<code>toString()</code>方法是否与Object类中的<code>toString()</code>方法相同；<br>如果相同则没有报错；<br><img src="/./images/1627405314051.png" alt="enter description here">[4]</p>
+<p>如果不同则报错说这个方法不是来自它的父类；<br><img src="/./images/1627405425918.png" alt="enter description here">[5]</p>
+<p><strong>2. @Deprecated</strong><br>表示该注解标注的内容已过时，但是仍然可以调用，只不过会出现删除线；</p>
+<p>先写了一个<code>show1()</code>方法，没过多久，发现这个<code>show1()</code>方法有缺陷，于是又新写了一个<code>show2()</code>方法，从而给<code>show1()</code>方法添加了<code>@Deprecated</code>注解，表示不建议使用该方法了；<br>如果非要使用<code>show1()</code>方法，就会出现删除线；<br>那为什么不删除<code>show1()</code>方法呢？因为还会存在有用户使用低版本的环境，删掉就不兼容了。<br><img src="/./images/1627407103898.png" alt="enter description here">[6]</p>
+<p><strong>3. @SuppressWarnings</strong><br>取消被该注解标注的元素及其子元素编译器显示的警告（消除警告）；</p>
+<p>没有添加注解前，会出现许多这样的警告；<br><img src="/./images/1627407582874.png" alt="enter description here">[7]</p>
+<p><code>@SuppressWarnings</code>注解带有一个value属性，所以使用时要给value传值，一般写all，消除所有警告；<br><img src="/./images/1627408104623.png" alt="enter description here">[8]</p>
+<p>一般把<code>@SuppressWarnings</code>添加到定义类的前面，这样该类的所有警告都会消失；<br><img src="/./images/1627408137548.png" alt="enter description here">[9]</p>
+<p><strong>4. “堆污染”警告与@SafeVarargs</strong><br>消除警告；</p>
+<p>想理解这个就要明白什么是堆污染，堆污染是什么？<br>就是把不带泛型的对象赋给一个带泛型的对象，为什么不行？因为不带泛型的话，默认会给泛型设定为object，意思就是什么类型都可以往里面塞，那你一个不带泛型的怎么可能给一个带泛型塞呢。</p>
+<p>那什么是泛型呢？<br>泛型，顾名思义就是广泛的数据类型，有多广泛，什么数据类型都行；<br>像下面这段代码，在类名后面声明泛型<code>T</code>，那么其中的成员变量、成员方法就可以使用泛型来定义，可以给这个变量传入各种类型的值；<br><img src="/./images/1627454543843.png" alt="enter description here">[10]</p>
+<p>注意：可变参数更容易引发堆污染异常，因为java不允许创建泛型数组，可变参数恰恰是数组。</p>
+<p>下面这段代码method方法接受的是一个泛型为Integer类型的Set集合，而main方法中，将一个没有泛型的set对象传给method方法时，则可能造成堆污染，出现警告；<br><img src="/./images/1627455863809.png" alt="enter description here">[11]</p>
+<p>抑制这个警告的方法有三个:</p>
+<ul>
+<li>@SafeVarargs修饰引发该警告的方法或构造器</li>
+<li>使用@suppressWarnings(“unchecked”)</li>
+<li>编译时使用-Xlint:varargs</li>
+</ul>
+<p><img src="/./images/1627455820496.png" alt="enter description here">[12]</p>
+<p><strong>5. 函数式接口与@Functionallnterface</strong><br>用于检查我们写的接口是否与函数式接口定义时的相符合；</p>
+<p>什么是函数式接口？<br>一个接口，这个接口里面只能有一个抽象方法；</p>
+<p>定义一个接口，里面定义一个抽象方法，用<code>@FunctionalInterface</code>注解，没有报错；<br><img src="/./images/1627463547930.png" alt="enter description here">[13]</p>
+<p>如果在里面定义两个抽象方法，就会出现报错。<br><img src="/./images/1627463904764.png" alt="enter description here">[14]</p>
+<h2 id="元注解"><a href="#元注解" class="headerlink" title="元注解"></a>元注解</h2><p>在<code>java.lang.annotation</code>包下，可以标注注解的一些注解；</p>
+<p>元注解有以下五种：<br><strong>1. @Retention</strong><br>当它标注到一个注解上时，它的属性就是该注解的存活时间；</p>
+<p><code>@Retention</code>有一个属性，有以下三种取值：</p>
+<ul>
+<li><code>RetentionPolicy.SOURCE</code>：注解只在源码阶段保留，在编译器进行编译时它将被丢弃忽视；</li>
+<li><code>RetentionPolicy.CLASS</code>：注解只被保留到编译进行的时候，它并不会被加载到 JVM 中；</li>
+<li><code>RetentionPolicy.RUNTIME</code>：注解可以保留到程序运行的时候，它会被加载进入到 JVM 中，所以在程序运行时可以获取到它们。<br>使用格式：<code>@Retention(RetentionPolicy.SOURCE)</code></li>
+</ul>
+<p><strong>2. @Documented</strong><br>能够将被<code>@Documented</code>标注的类中的注解提取到Javadoc中去。</p>
+<p><strong>3. @Target</strong><br>指定被标注的注解运用的地方；</p>
+<p><code>@Target</code>有一个属性，有以下几种取值，可选用多个值，用逗号隔开：</p>
+<ul>
+<li><code>ElementType.ANNOTATION_TYPE</code> 可以给一个注解进行注解</li>
+<li><code>ElementType.CONSTRUCTOR</code> 可以给构造方法进行注解</li>
+<li><code>ElementType.FIELD</code> 可以给属性进行注解</li>
+<li><code>ElementType.LOCAL_VARIABLE</code> 可以给局部变量进行注解</li>
+<li><code>ElementType.METHOD</code> 可以给方法进行注解</li>
+<li><code>ElementType.PACKAGE</code> 可以给一个包进行注解</li>
+<li><code>ElementType.PARAMETER</code> 可以给一个方法内的参数进行注解</li>
+<li><code>ElementType.TYPE</code> 可以给一个类型进行注解，比如类、接口、枚举<br>使用格式：<code>@Target(ElementType.TYPE,ElementType.PACKAGE)</code></li>
+</ul>
+<p><strong>4. @Inherited</strong><br>如果一个A方法被<code>@Inherited</code>和其他一些注解所标注，B方法继承了A方法，且B方法没有被任何注解标注，那么B方法就自动继承标注A方法的所有注解。</p>
+<p><strong>5. @Repeatable</strong><br>先看个例子来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@interface</span> Persons &#123;</span><br><span class="line">    Person[]  value();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Repeatable(Persons.class)</span></span><br><span class="line"><span class="meta">@interface</span> Person&#123;</span><br><span class="line">    String role <span class="keyword">default</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Person(role=&quot;teacher&quot;)</span></span><br><span class="line"><span class="meta">@Person(role=&quot;doctor&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Man</span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码中先定义了一个Persons注解，然后定义了一个Person注解，并且用<code>@Repeatable</code>来注解这个注解，而<code>@Repeatable</code>后面的括号相当于一个容器注解，可以理解为存放其他注解的地方，即Persons，它本身也是一个注解；<br>然后用<code>@Person</code>注解去标注Man方法，可以给<code>@Person</code>注解中的role属性赋值，Man方法在拥有<code>@Person</code>注解的属性的同时，也拥有<code>@Persons</code>注解的属性。</p>
+<h2 id="注解的属性"><a href="#注解的属性" class="headerlink" title="注解的属性"></a>注解的属性</h2><p>注解的属性就相当于接口的抽象方法；</p>
+<p>定义一个注解<code>@Person</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Person&#123;</span><br><span class="line">        String <span class="title function_">name</span><span class="params">()</span>;</span><br><span class="line">        <span class="type">int</span> <span class="title function_">age</span><span class="params">()</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>当只有一个属性name的时候，使用时可以不带属性名称：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Person(&quot;blckder02&quot;)</span></span><br></pre></td></tr></table></figure>
+<p>有多个属性时，使用时就必须写明属性名称及值，多个属性之间用逗号隔开：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Person(value=&quot;blckder02&quot;, age=20)</span></span><br></pre></td></tr></table></figure>
+<p>也可以将属性用default关键字指定为默认值，使用时可写为<code>@Person()</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Person&#123;</span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">name</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;blckder02&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">age</span><span class="params">()</span> <span class="keyword">default</span> <span class="number">18</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>没有属性时就只用写<code>@Person</code>。</p>
+<p>属性的返回类型可以是：</p>
+<ol>
+<li>八种基本类型</li>
+<li>String类型</li>
+<li>Class类型</li>
+<li>注解类型</li>
+<li>枚举类型</li>
+<li>以上五种类型的数组类型</li>
+</ol>
+<h2 id="自定义注解"><a href="#自定义注解" class="headerlink" title="自定义注解"></a>自定义注解</h2><p>看了前面那么多例子，差不多也知道注解该怎么写了；<br><strong>格式：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//任意个元注解或内置注解</span></span><br><span class="line">@...</span><br><span class="line">@...</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> 注解名称&#123;</span><br><span class="line">	<span class="comment">//任意个属性</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注解本质上就是一个接口，默认继承<code>java.lang.annotation.Annotation</code>；<br><code>Annotation</code>是所有注解类型扩展的公共接口，手动扩展这个接口不限定注解类型，且此接口本身不是注解类型。</p>
+<h2 id="使用注解"><a href="#使用注解" class="headerlink" title="使用注解"></a>使用注解</h2><p>使用注解的目的是获取注解中定义的属性值，而注解是通过反射获取的；<br>以<a target="_blank" rel="noopener" href="http://www.blckder02.cn/index.php/archives/982/">Java反射</a>中的<code>ReflectTest.java</code>为例，注解可以用来替换1、2步配置文件的相关操作；</p>
+<p>先自定义一个注解<code>@Anno1</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.ElementType;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Retention;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.RetentionPolicy;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target(&#123;ElementType.TYPE&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Anno1 &#123;</span><br><span class="line">    String <span class="title function_">className</span><span class="params">()</span>;</span><br><span class="line">    String <span class="title function_">methodName</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>写一个<code>Demo1</code>，定义一个show1方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo1</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">show1</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Demo1-show1&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再写一个<code>Demo2</code>，定义一个show2方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo2</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">show2</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Demo2-show2&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>把<code>ReflectTest.java</code>搬过来，用注解替换配置文件部分的操作，然后通过反射获取类名和方法名，最后执行获取到的方法，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Anno1(className = &quot;cn.blckder02.annotation.Demo1&quot;, methodName = &quot;show1&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReflectTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//1. 解析注解</span></span><br><span class="line">        <span class="comment">//获取该类的字节码文件对象</span></span><br><span class="line">        Class&lt;ReflectTest&gt; reflectTestClass = ReflectTest.class;</span><br><span class="line">        <span class="comment">//获取上面@Anno1的注解对象</span></span><br><span class="line">        <span class="type">Anno1</span> <span class="variable">anno</span> <span class="operator">=</span> reflectTestClass.getAnnotation(Anno1.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//2.调用注解对象中定义的属性，获取返回值</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">className</span> <span class="operator">=</span> anno.className();</span><br><span class="line">        <span class="type">String</span> <span class="variable">methodName</span> <span class="operator">=</span> anno.methodName();</span><br><span class="line">        System.out.println(className);</span><br><span class="line">        System.out.println(methodName);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;-------------------------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//3.加载该类进内存</span></span><br><span class="line">        <span class="type">Class</span> <span class="variable">cls</span> <span class="operator">=</span> Class.forName(className);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//4.创建对象</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> cls.newInstance();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//5.获取方法对象</span></span><br><span class="line">        <span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> cls.getMethod(methodName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//执行方法</span></span><br><span class="line">        method.invoke(obj);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>程序运行结果：<br><img src="/./images/1627482617938.png" alt="enter description here">[15]</p>
+<p>其中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Anno1</span> <span class="variable">anno</span> <span class="operator">=</span> reflectTestClass.getAnnotation(Anno1.class);</span><br></pre></td></tr></table></figure>
+<p>意思就是在内存中生成了一个该注解(本质是接口)的子类实现对象，可以理解为下面代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Anno1Impl</span> <span class="keyword">implements</span> <span class="title class_">Anno1</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">className</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span>  <span class="string">&quot;cn.blckder02.annotation.Demo1&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">methodName</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;show1&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Anno1Impl </code>实现了<code>Anno1</code>注解（接口），并且复写了<code>Anno1</code>中的两个方法，返回了使用<code>Anno1</code>注解时两个属性的值；<br><code>anno.className()</code>调用的<code>className()</code>方法就相当于是调用的<code>Anno1Impl </code>中的<code>className()</code>方法；<code>anno.methodName()</code>同理。</p>
+<p>通过修改使用注解时属性的值，便可以获取到不同的方法；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Anno1(className = &quot;cn.blckder02.annotation.Demo2&quot;, methodName = &quot;show2&quot;)</span></span><br></pre></td></tr></table></figure>
+<p><img src="/./images/1627483557352.png" alt="enter description here">[16]</p>
+<h2 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h2><p>写一个<code>Check</code>注解，用于检测被标注的方法是否出错：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation.Demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.ElementType;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Retention;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.RetentionPolicy;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Check &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>写一个计算器，给每个计算方法前都加上<code>@Check</code>注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation.Demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Calculator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//加法</span></span><br><span class="line">    <span class="meta">@Check</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        str.toString();</span><br><span class="line">        System.out.println(<span class="string">&quot;1 + 0 = &quot;</span> + (<span class="number">1</span> + <span class="number">0</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//减法</span></span><br><span class="line">    <span class="meta">@Check</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sun</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;1 - 0 = &quot;</span> + (<span class="number">1</span> - <span class="number">0</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//乘法</span></span><br><span class="line">    <span class="meta">@Check</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">mul</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;1 * 0 = &quot;</span> + (<span class="number">1</span> * <span class="number">0</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//减法</span></span><br><span class="line">    <span class="meta">@Check</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">div</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;1 / 0 = &quot;</span> + (<span class="number">1</span> / <span class="number">0</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">show</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;该程序没有bug&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再写一个<code>TestCheck</code>测试程序，将出现的异常写到bug.txt中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation.Demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.BufferedWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.FileWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestCheck</span> &#123;</span><br><span class="line">    <span class="comment">//当main方法执行后，会自动执行被标注的所有方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">error_num</span> <span class="operator">=</span> <span class="number">0</span>;  <span class="comment">//记录出现异常的次数</span></span><br><span class="line">        <span class="comment">//创建一个缓冲输出流对象，将输出记录到bug.txt中</span></span><br><span class="line">        <span class="type">BufferedWriter</span> <span class="variable">bw</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedWriter</span>(<span class="keyword">new</span> <span class="title class_">FileWriter</span>(<span class="string">&quot;bug.txt&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//1. 创建计算器对象</span></span><br><span class="line">        <span class="type">Calculator</span> <span class="variable">c</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Calculator</span>();</span><br><span class="line">        <span class="comment">//2. 获取字节码文件对象</span></span><br><span class="line">        <span class="type">Class</span> <span class="variable">cls</span> <span class="operator">=</span> c.getClass();</span><br><span class="line">        <span class="comment">//3. 获取所有方法</span></span><br><span class="line">        Method[] methods = cls.getMethods();</span><br><span class="line">        <span class="keyword">for</span>(Method method : methods)&#123;</span><br><span class="line">            <span class="comment">//4. 判断方法上是否有Check注解</span></span><br><span class="line">            <span class="keyword">if</span>(method.isAnnotationPresent(Check.class))&#123;</span><br><span class="line">                <span class="comment">//5. 若有，则执行</span></span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    method.invoke(c);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                   <span class="comment">//6. 捕获异常</span></span><br><span class="line"></span><br><span class="line">                    <span class="comment">//将捕获的异常记录到文件中</span></span><br><span class="line">                    error_num++;</span><br><span class="line">                    bw.write(method.getName()+<span class="string">&quot; 方法出异常了&quot;</span>);   <span class="comment">//获取异常方法名</span></span><br><span class="line">                    bw.newLine();</span><br><span class="line">                    bw.write(<span class="string">&quot;异常的名称是：&quot;</span>+e.getCause().getClass().getSimpleName());    <span class="comment">//获取异常的简短名称</span></span><br><span class="line">                    bw.newLine();</span><br><span class="line">                    bw.write(<span class="string">&quot;异常的原因是：&quot;</span>+e.getCause().getMessage());  <span class="comment">//获取异常的原因</span></span><br><span class="line">                    bw.newLine();</span><br><span class="line">                    bw.write(<span class="string">&quot;------------------------------------------------&quot;</span>);</span><br><span class="line">                    bw.newLine();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        bw.write(<span class="string">&quot;本次测试共出现&quot;</span>+error_num+<span class="string">&quot;次异常&quot;</span>);</span><br><span class="line">        bw.flush();</span><br><span class="line">        bw.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行<code>TestCheck.java</code>，输出如下：<br><img src="/./images/1627486445728.png" alt="enter description here">[17]</p>
+<p>只输出了sub和mul方法的计算结果，说明add和div方法出现了异常；<br>查看生成的bug.txt，里面记录了异常信息：<br><img src="/./images/1627486511586.png" alt="enter description here">[18]</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ol>
+<li>注解是提供数据用来解释程序代码的，是给编译器、解析程序看的；</li>
+<li>注解不是程序的一部分，无论添加与否都不影响程序的执行；</li>
+<li>注解的提取需要借助于 Java 的反射技术，反射比较慢，所以注解使用时也需要谨慎计较时间成本。</li>
+</ol>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq1404510094/article/details/80577555">https://blog.csdn.net/qq1404510094/article/details/80577555</a><br><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Vt411g7RP">https://www.bilibili.com/video/BV1Vt411g7RP</a></p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/18/Java%E6%B3%A8%E8%A7%A3/">http://example.com/2022/09/18/Java%E6%B3%A8%E8%A7%A3/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>

