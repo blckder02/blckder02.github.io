@@ -454,6 +454,41 @@ header .header__right .dropdown-menus .dropdown-menu {
       
       <article class="index-card-info">
         <h3 class="index-header">
+          <a href="/2022/09/26/Fastjson%201.2.80%20%E5%88%86%E6%9E%90/">
+          
+          Fastjson 1.2.80 分析</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            前言该漏洞由浅蓝研究发现，可在特定条件下绕过 AutoType 关闭限制加载远程对象进行反序列化。
+影响版本： 特定依赖存在下影响 ≤1.2.80。
+漏洞公告：https://github.com/alibaba/fastjson/wiki/security_update_20220523
+Groovy环境搭建
+Fastjson 1.2.80
+Groovy 3.0.8
+JDK 8u12
+在 pom
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-09-26 19:30" pubdate>
+                2022-09-26
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+    <div class="index-card">
+      
+      <article class="index-card-info">
+        <h3 class="index-header">
           <a href="/2022/09/19/Spring%20MVC/">
           
           Spring MVC</a>
@@ -719,41 +754,6 @@ Commons Collections 3.1
 
 pom.xml中添加：
 1234567&lt;dependencies&gt;	&lt;dependency&gt;		&lt;g
-        </p>
-        <div class="index-btm post-metas">
-          
-            
-              <time datetime="2022-09-19 19:31" pubdate>
-                2022-09-19
-              </time>
-            
-          
-          
-        </div>
-      </article>
-    </div>
-  
-    <div class="index-card">
-      
-      <article class="index-card-info">
-        <h3 class="index-header">
-          <a href="/2022/09/19/Java%20%20Commons%20Collection%206%E5%88%86%E6%9E%90/">
-          
-          Java  Commons Collection 6分析</a>
-        </h3>
-        <p class="index-excerpt">
-            
-            
-              
-            
-            前言CC6还是通过调用LazyMap#get来触发RCE，任然用到了TiedMapEntry类，只不过是通过调用TiedMapEntry#getValue的链不一样。
-环境搭建
-
-JDK 1.8
-Commons Collections 3.1
-
-pom.xml中添加：
-1234567&lt;dependencies&gt;        &lt;dependency&gt;            
         </p>
         <div class="index-btm post-metas">
           

