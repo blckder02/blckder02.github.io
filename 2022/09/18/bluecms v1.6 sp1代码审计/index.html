@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>bluecms v1.6 sp1代码审计 - blckder02&#39;s blog</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>bluecms v1.6 sp1代码审计</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-18 15:16" pubdate>
+          2022-09-18
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 1.9k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A1%E8%AE%A1%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">审计过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BD%91%E7%AB%99%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number">2.1.</span> <span class="toc-text">网站目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E6%89%AB%E6%8F%8F"><span class="toc-number">2.2.</span> <span class="toc-text">工具扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">2.3.</span> <span class="toc-text">SQL注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XSS%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.4.</span> <span class="toc-text">XSS漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.5.</span> <span class="toc-text">文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4"><span class="toc-number">2.6.</span> <span class="toc-text">任意文件删除</span></a></li></ol></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>下载bulecms v1.6的源码：<a target="_blank" rel="noopener" href="https://www.a5xiazai.com/php/17968.html">https://www.a5xiazai.com/php/17968.html</a><br>放入根目录下后访问install进行安装；</p>
+<p>第一次安装好像没安装对，又访问了一次install再次进行安装；欸，等等，又可以重新安装一次，那不是人人都可以访问install，每次把所有数据进行重装一次。。</p>
+<h2 id="审计过程"><a href="#审计过程" class="headerlink" title="审计过程"></a>审计过程</h2><h3 id="网站目录结构"><a href="#网站目录结构" class="headerlink" title="网站目录结构"></a>网站目录结构</h3><p><img src="/./images/1603283910793.png" alt="enter description here">[1]</p>
+<h3 id="工具扫描"><a href="#工具扫描" class="headerlink" title="工具扫描"></a>工具扫描</h3><p>seay源代码审计系统扫描出255个可疑漏洞；<br><img src="/./images/1603284274623.png" alt="enter description here">[2]</p>
+<h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><p><strong>&#x2F;uploads&#x2F;ad_js.php</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">12</span>：<span class="variable">$ad_id</span> = !<span class="keyword">empty</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;ad_id&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;ad_id&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"><span class="number">19</span>：<span class="variable">$ad</span> = <span class="variable">$db</span>-&gt;<span class="title function_ invoke__">getone</span>(<span class="string">&quot;SELECT * FROM &quot;</span>.<span class="title function_ invoke__">table</span>(<span class="string">&#x27;ad&#x27;</span>).<span class="string">&quot; WHERE ad_id =&quot;</span>.<span class="variable">$ad_id</span>);</span><br></pre></td></tr></table></figure>
+<p><code>$ad_id</code>变量无单引号保护，只用trim()去除了首位的空格，可以进行注入，是数字型，payload如下：<br>查数据库名：<code>ad_js.php?ad_id=1 union select 1,2,3,4,5,6,database()</code><br><img src="/./images/1603286988203.png" alt="enter description here">[3]<br>查表名：<code>ad_js.php?ad_id=1 union select 1,2,3,4,5,6,group_concat(table_name) from information_schema.tables where table_schema=database()</code><br>查出来的表名要转换为16进制才能进一步查列名；<br>将<code>blue_admin</code>转换为16进制<code>0x626c75655f61646d696e</code>，查询；<br><code>group_concat(column_name) from information_schema.columns where table_name=0x626c75655f61646d696e</code><br>接着查询用户名<code>admin_name</code>和密码<code>pwd</code>；<br><code>ad_js.php?ad_id=1 union select 1,2,3,4,5,6,group_concat(admin_name,0x7e,pwd) from blue_admin</code><br>密码经过md5加密的，解密一下就好了；<br><img src="/./images/1603336824325.png" alt="enter description here">[4]</p>
+<p>有的cms审着审着主页就没了（被旁边的hacker删掉了(╯‵□′)╯︵┻━┻），不过这个免杀马我就收下了(๑‾ ꇴ ‾๑)，不亏；<br><img src="/./images/1603337229261.png" alt="enter description here">[5]</p>
+<p><strong>&#x2F;uploads&#x2F;include&#x2F;common.fun.php(XFF注入)</strong><br>扫描结果说获取IP地址方式可伪造，HTTP_REFERER可伪造；<br><img src="/./images/1603342913395.png" alt="enter description here">[6]<br>问题代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getip</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (<span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_CLIENT_IP&#x27;</span>))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="variable">$ip</span> = <span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_CLIENT_IP&#x27;</span>); </span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">elseif</span> (<span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_X_FORWARDED_FOR&#x27;</span>)) </span><br><span class="line">	&#123; </span><br><span class="line">		<span class="variable">$ip</span> = <span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_X_FORWARDED_FOR&#x27;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">elseif</span> (<span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_X_FORWARDED&#x27;</span>)) </span><br><span class="line">	&#123; </span><br><span class="line">		<span class="variable">$ip</span> = <span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_X_FORWARDED&#x27;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">elseif</span> (<span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_FORWARDED_FOR&#x27;</span>))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="variable">$ip</span> = <span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_FORWARDED_FOR&#x27;</span>); </span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">elseif</span> (<span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_FORWARDED&#x27;</span>))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="variable">$ip</span> = <span class="title function_ invoke__">getenv</span>(<span class="string">&#x27;HTTP_FORWARDED&#x27;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123; </span><br><span class="line">		<span class="variable">$ip</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;REMOTE_ADDR&#x27;</span>];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$ip</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里定义了<code>getip()</code>函数，$ip的值可能从<code>HTTP_CLIENT_IP</code> <code>HTTP_X_FORWARDED_FOR</code> <code>HTTP_FORWARDED_FOR</code> <code>HTTP_FORWARDED</code>获得；<br>全局搜索到有两个地方调用了这个函数；<br><img src="/./images/1603343278096.png" alt="enter description here">[7]<br>查看文件<code>/uploads/include/common.inc.php</code>，代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">45</span>：<span class="variable">$online_ip</span> = <span class="title function_ invoke__">getip</span>();</span><br></pre></td></tr></table></figure>
+<p>将getip()获得的值给了 <code>$online_ip</code>，搜索一下哪里用了<code>$online_ip</code>；<br><img src="/./images/1603367169928.png" alt="enter description here">[8]<br>查看<code>guest_book.php</code>，代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">77</span>行：<span class="variable">$sql</span> = <span class="string">&quot;INSERT INTO &quot;</span> . <span class="title function_ invoke__">table</span>(<span class="string">&#x27;guest_book&#x27;</span>) . <span class="string">&quot; (id, rid, user_id, add_time, ip, content) </span></span><br><span class="line"><span class="string">78行：	VALUES (&#x27;&#x27;, &#x27;<span class="subst">$rid</span>&#x27;, &#x27;<span class="subst">$user_id</span>&#x27;, &#x27;<span class="subst">$timestamp</span>&#x27;, &#x27;<span class="subst">$online_ip</span>&#x27;, &#x27;<span class="subst">$content</span>&#x27;)&quot;</span>;</span><br><span class="line"><span class="number">79</span>行：<span class="variable">$db</span>-&gt;<span class="title function_ invoke__">query</span>(<span class="variable">$sql</span>);</span><br></pre></td></tr></table></figure>
+<p><code>$online_ip</code>得到的值没有经过过滤就带入sql语句执行，所以这里，是存在注入的；<br>访问<code>/uploads/guest_book.php</code>，是一个留言界面，可是无论填写什么内容，发表时都提示留言内容不能为空，用burp抓包也抓不到；<br>那这多半就是个前端js验证，改改代码就可以了；<br><img src="/./images/1603368199843.png" alt="enter description here">[9]<br>然后发表留言，用burp抓包，添加一个XFF头，在XFF头进行注入，要对语句进行闭合，payload如下：<br><code>X-Forwarded-For: 127.0.0.1&#39;,database()) -- +</code><br><img src="/./images/1603369251212.png" alt="enter description here">[10]<br>评论区爆出数据库名，继续查询可得更多信息。</p>
+<p><strong>&#x2F;uploads&#x2F;admin&#x2F;login.php(宽字节注入)</strong><br>问题代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">22</span>行：<span class="variable">$admin_name</span> = <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;admin_name&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;admin_name&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"> <span class="number">23</span>行：	<span class="variable">$admin_pwd</span> = <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;admin_pwd&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;admin_pwd&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"><span class="number">31</span>行：<span class="keyword">if</span>(<span class="title function_ invoke__">check_admin</span>(<span class="variable">$admin_name</span>, <span class="variable">$admin_pwd</span>))</span><br></pre></td></tr></table></figure>
+<p>追踪<code>check_admin</code>到<code>/uploads/admin/include/common.fun.php</code>；</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check_admin</span>(<span class="params"><span class="variable">$name</span>, <span class="variable">$pwd</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">global</span> <span class="variable">$db</span>;</span><br><span class="line">	<span class="variable">$row</span> = <span class="variable">$db</span>-&gt;<span class="title function_ invoke__">getone</span>(<span class="string">&quot;SELECT COUNT(*) AS num FROM &quot;</span>.<span class="title function_ invoke__">table</span>(<span class="string">&#x27;admin&#x27;</span>).<span class="string">&quot; WHERE admin_name=&#x27;<span class="subst">$name</span>&#x27; and pwd = md5(&#x27;<span class="subst">$pwd</span>&#x27;)&quot;</span>);</span><br><span class="line"> 	<span class="keyword">if</span>(<span class="variable">$row</span>[<span class="string">&#x27;num&#x27;</span>] &gt; <span class="number">0</span>)</span><br><span class="line"> 	&#123;</span><br><span class="line"> 		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"> 	&#125;</span><br><span class="line"> 	<span class="keyword">else</span></span><br><span class="line"> 	&#123;</span><br><span class="line"> 		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"> 	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果在<code>magic_quotes_gpc=Off</code>的情况下，所有传入的参数都会经过<code>deep_addslashes()</code>函数；</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  /uploads/admin/include/common.inc.php</span></span><br><span class="line"><span class="number">25</span>行：<span class="keyword">if</span>(!<span class="title function_ invoke__">get_magic_quotes_gpc</span>())</span><br><span class="line">		 &#123;</span><br><span class="line">			<span class="variable">$_POST</span> = <span class="title function_ invoke__">deep_addslashes</span>(<span class="variable">$_POST</span>);</span><br><span class="line">			<span class="variable">$_GET</span> = <span class="title function_ invoke__">deep_addslashes</span>(<span class="variable">$_GET</span>);</span><br><span class="line">			<span class="variable">$_COOKIES</span> = <span class="title function_ invoke__">deep_addslashes</span>(<span class="variable">$_COOKIES</span>);</span><br><span class="line">			<span class="variable">$_REQUEST</span> = <span class="title function_ invoke__">deep_addslashes</span>(<span class="variable">$_REQUEST</span>);</span><br><span class="line">		 &#125;</span><br></pre></td></tr></table></figure>
+<p> 追踪<code>deep_addslashes()</code>函数到<code>/uploads/admin/include/common.fun.php</code>；<br> <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">function</span> <span class="title">deep_addslashes</span>(<span class="params"><span class="variable">$str</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(<span class="title function_ invoke__">is_array</span>(<span class="variable">$str</span>))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">foreach</span>(<span class="variable">$str</span> <span class="keyword">as</span> <span class="variable">$key</span>=&gt;<span class="variable">$val</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="variable">$str</span>[<span class="variable">$key</span>] = <span class="title function_ invoke__">deep_addslashes</span>(<span class="variable">$val</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="variable">$str</span> = <span class="title function_ invoke__">addslashes</span>(<span class="variable">$str</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$str</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>作用是将传入的参数用<code>addslashes()</code>函数进行过滤；<br>如果在<code>magic_quotes_gpc=On</code>的情况下，单引号、双引号、反斜线与 NULL等字符也都会被转义掉，和<code>addslashes()</code>函数作用一样；<br>所以，无论什么情况，传入的参数都会被转义，而从前面的抓<br>包信息可以看到是<code>gbk2312</code>编码；<br><img src="/./images/1603371647044.png" alt="enter description here">[11]<br>所以这里存在宽字节注入，可以用万能密码进行登录；<br><code>xx%df&#39; or 1=1 #</code><br><img src="/./images/1603371594780.png" alt="enter description here">[12]</p>
+<h3 id="XSS漏洞"><a href="#XSS漏洞" class="headerlink" title="XSS漏洞"></a>XSS漏洞</h3><p><strong>&#x2F;uploads&#x2F;user.php</strong><br>注册一个新用户，提交抓包；<br><img src="/./images/1603437712109.png" alt="enter description here">[13]<br>显示出了我们填写的所以信息，<code>act</code>参数是控制执行什么功能，查看源码，找到<code>$act == &#39;do_reg&#39;</code>，代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$user_name</span> 		=	!<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;user_name&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;user_name&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	<span class="variable">$pwd</span>       		= 	!<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;pwd&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;pwd&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	<span class="variable">$pwd1</span> 	   		= 	!<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;pwd1&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;pwd1&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	<span class="variable">$email</span>     		= 	!<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;email&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;email&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	<span class="variable">$safecode</span>  		= 	!<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;safecode&#x27;</span>]) ? <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;safecode&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	<span class="variable">$from</span> = !<span class="keyword">empty</span>(<span class="variable">$from</span>) ? <span class="title function_ invoke__">base64_decode</span>(<span class="variable">$from</span>) : <span class="string">&#x27;user.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$user_name</span>) &lt; <span class="number">4</span> || <span class="title function_ invoke__">strlen</span>(<span class="variable">$user_name</span>) &gt; <span class="number">16</span>)&#123;</span><br><span class="line">		<span class="title function_ invoke__">showmsg</span>(<span class="string">&#x27;用户名字符长度不符&#x27;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$pwd</span>) &lt; <span class="number">6</span>)&#123;</span><br><span class="line">		<span class="title function_ invoke__">showmsg</span>(<span class="string">&#x27;密码不能少于6个字符&#x27;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(<span class="variable">$pwd</span> != <span class="variable">$pwd1</span>)&#123;</span><br><span class="line">		<span class="title function_ invoke__">showmsg</span>(<span class="string">&#x27;两次输入密码不一致&#x27;</span>);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>这里对用户名和密码的长度进行了限制，而对<code>$emali</code>只有<code>trim()</code>函数作用，所以在<code>$emali</code>处存在存储型XSS，为了绕过前端检测，用burp抓包写入payload；<br><img src="/./images/1603440162612.png" alt="enter description here">[14]</p>
+<p><strong>&#x2F;uploads&#x2F;user.php</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">266</span>行：	<span class="variable">$content</span> = !<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;content&#x27;</span>]) ? <span class="title function_ invoke__">filter_data</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;content&#x27;</span>]) : <span class="string">&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p><code>$content</code>内容经过了<code>filter_data()</code>函数过滤，追踪该函数到<code>/uploads/include/common.fun.php</code>第985行；</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">filter_data</span>(<span class="params"><span class="variable">$str</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$str</span> = <span class="title function_ invoke__">preg_replace</span>(<span class="string">&quot;/&lt;(\/?)(script|i?frame|meta|link)(\s*)[^&lt;]*&gt;/&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="variable">$str</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$str</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数将许多字符都替换成了空，但是还有img标签没过滤，构造payload<code>&lt;img src=1 onerror=alert(/blckder02/)&gt;</code>，<code>$cid</code>不能为空，就随便给个值；<br><img src="/./images/1603458726746.png" alt="enter description here">[15]</p>
+<h3 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h3><p><strong>&#x2F;upoads&#x2F;user.php</strong><br>742行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">elseif</span> (<span class="variable">$act</span> == <span class="string">&#x27;pay&#x27;</span>)&#123;</span><br><span class="line"> 	<span class="keyword">include</span> <span class="string">&#x27;data/pay.cache.php&#x27;</span>;</span><br><span class="line"> 	<span class="variable">$price</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;price&#x27;</span>];</span><br><span class="line"> 	<span class="variable">$id</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;id&#x27;</span>];</span><br><span class="line"> 	<span class="variable">$name</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line"> 	<span class="keyword">if</span> (<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;pay&#x27;</span>])) &#123;</span><br><span class="line"> 		<span class="title function_ invoke__">showmsg</span>(<span class="string">&#x27;对不起，您没有选择支付方式&#x27;</span>);</span><br><span class="line"> 	&#125;</span><br><span class="line"> 	<span class="keyword">include</span> <span class="string">&#x27;include/payment/&#x27;</span>.<span class="variable">$_POST</span>[<span class="string">&#x27;pay&#x27;</span>].<span class="string">&quot;/index.php&quot;</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p> <code>$_POST[&#39;pay&#39;]</code>前后加了文件，可以使用<code>../</code>进行目录遍历，后面的<code>/index.php</code>如果php版本低于5.3.4且<code>magic_quotes_gpc=off</code>则可以使用<code>%00</code>截断，导致任意文件包含。还可以使用<code>.....</code>号进行长路径截断，Windows下目录最大长度为256字节，Linux下目录最大长度为4096字节；<br> 道理是这样没错，但是我始终包含不上，放弃(ー ー゛)。<br> 可以在用户头像上传图片马包含来getshell；<br><img src="/./images/1603528683889.png" alt="enter description here">[16]</p>
+<h3 id="任意文件删除"><a href="#任意文件删除" class="headerlink" title="任意文件删除"></a>任意文件删除</h3><p><strong>&#x2F;uploads&#x2F;user.php</strong><br>779行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!<span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;face_pic1&#x27;</span>]))&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">strpos</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;face_pic1&#x27;</span>], <span class="string">&#x27;http://&#x27;</span>) != <span class="literal">false</span> &amp;&amp; <span class="title function_ invoke__">strpos</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;face_pic1&#x27;</span>], <span class="string">&#x27;https://&#x27;</span>) != <span class="literal">false</span>)&#123;</span><br><span class="line">           <span class="title function_ invoke__">showmsg</span>(<span class="string">&#x27;只支持本站相对路径地址&#x27;</span>);</span><br><span class="line">         &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">           <span class="variable">$face_pic</span> = <span class="title function_ invoke__">trim</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;face_pic1&#x27;</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(<span class="title function_ invoke__">file_exists</span>(BLUE_ROOT.<span class="variable">$_POST</span>[<span class="string">&#x27;face_pic3&#x27;</span>]))&#123;</span><br><span class="line">			@<span class="title function_ invoke__">unlink</span>(BLUE_ROOT.<span class="variable">$_POST</span>[<span class="string">&#x27;face_pic3&#x27;</span>]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>如果<code>face_pic1</code>为空，又存在<code>face_pic3</code>的话，就删除<code>face_pic3</code>，那传给<code>face_pic3</code>的任意文件都可以删除；<br>新建一个1.txt；<br><img src="/./images/1603538483214.png" alt="enter description here">[17]<br>提交修改信息抓包，保证<code>face_pic1</code>为空，在<code>face_pic3</code>处写入1.php，发送成功，1.php被删除；<br><img src="/./images/1603538756322.png" alt="enter description here">[18]</p>
+<p><strong>&#x2F;uploads&#x2F;user.php</strong><br>615行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">file_exists</span>(BLUE_ROOT.<span class="variable">$_POST</span>[<span class="string">&#x27;lit_pic&#x27;</span>])) &#123;</span><br><span class="line">		@<span class="title function_ invoke__">unlink</span>(BLUE_ROOT.<span class="variable">$_POST</span>[<span class="string">&#x27;lit_pic&#x27;</span>]);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>该段代码的功能是在编辑信息时，如果存在<code>$_POST[&#39;lit_pic&#39;]</code>上传的文件，那么就删除该文件；<br>先随便发布一篇信息；<br><img src="/./images/1603542472111.png" alt="enter description here">[19]<br>点击编辑，然后提交信息抓包，<code>lit_pic</code>默认的值是空；<br><img src="/./images/1603542607613.png" alt="enter description here">[20]<br>在新建一个2.php；<br><img src="/./images/1603542695332.png" alt="enter description here">[21]<br>令<code>lit_pic=2.php</code>，发送，2.php被删除；<br><img src="/./images/1603542787936.png" alt="enter description here">[22]</p>
+<p>大致漏洞类型是这些，用个别地方举了下例子，还有其他很多地方漏洞原理差不多，有时间慢慢研究。</p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/18/bluecms%20v1.6%20sp1%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">http://example.com/2022/09/18/bluecms%20v1.6%20sp1%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>

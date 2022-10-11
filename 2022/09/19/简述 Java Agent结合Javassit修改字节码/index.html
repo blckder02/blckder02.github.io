@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>简述 Java Agent结合Javassit修改字节码 - blckder02&#39;s blog</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>简述 Java Agent结合Javassit修改字节码</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-19 19:29" pubdate>
+          2022-09-19
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 2.6k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-Agent"><span class="toc-number">2.</span> <span class="toc-text">Java Agent</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">2.1.</span> <span class="toc-text">概述</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">3.</span> <span class="toc-text">示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#premain"><span class="toc-number">3.1.</span> <span class="toc-text">premain</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AgentMain"><span class="toc-number">3.2.</span> <span class="toc-text">AgentMain</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Javassit"><span class="toc-number">4.</span> <span class="toc-text">Javassit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1"><span class="toc-number">5.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EJava-RASP"><span class="toc-number">6.</span> <span class="toc-text">关于Java RASP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E8%AE%B0"><span class="toc-number">7.</span> <span class="toc-text">后记</span></a></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是一篇只给我自己看的文章，想要了解标题内容，请直接访问文末链接；<br>本文简要记录Java Agent结合Javassit修改字节码的过程，由于内容太多，人又太懒，就不详细记录了。</p>
+<h2 id="Java-Agent"><a href="#Java-Agent" class="headerlink" title="Java Agent"></a>Java Agent</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>javaagent是一种能够在不影响正常编译的情况下，修改字节码；<br>Java作为一种强类型语言，不通过编译就不能够生成jar包，而有了javaagent技术，就可以在字节码层面对类和方法进行修改；同时也可以把javaagent理解成一种代码注入的方式。</p>
+<p>javaagent就是一个jar包，但不能单独启动，必须依附在一个Java应用程序运行；<br>可以使用Agent技术构建一个独立于应用程序的代理程序，用来协助监测、运行甚至替换其他JVM上的程序，可以使用它实现虚拟机级别的AOP功能。</p>
+<p>Agent分为两种：</p>
+<ul>
+<li>实现<code>premain</code>方法，主程序运行之前运行Agent；</li>
+<li>实现<code>agentmain</code>方法，主程序运行之后运行Agent；</li>
+</ul>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><h3 id="premain"><a href="#premain" class="headerlink" title="premain"></a>premain</h3><p>创建一个Maven取名为<code>Java_Agent</code>；<br><img src="/./images/1631259336806.png" alt="enter description here">[1]</p>
+<p>新建一个PreDemo类，并实现<code>premain</code>方法；<br><img src="/./images/1631258515538.png" alt="enter description here">[2]</p>
+<p>在<code>src/main/resources/</code>目录下创建<code>META-INF/MANIFEST.MF</code>文件，指定<code>Premain-Class</code>，要写你自己PerDemo类对应的全类名，最后必须多一个换行；<br><img src="/./images/1631257794358.png" alt="enter description here">[3]</p>
+<p>然后将该类打成jar包；<br>操作：<code>File</code> -&gt; <code>Project Structure</code> -&gt; <code>Artifacts</code> -&gt; <code>JAR</code> -&gt; <code>From modules with dependencies</code><br><img src="/./images/1631259698087.png" alt="enter description here">[4]</p>
+<p>然后按默认选择就可以了；<br><img src="/./images/1631259762513.png" alt="enter description here">[5]</p>
+<p>也可以选择下面的选项，设置路径到resource下，这样会自动生成<code>META-INF/MANIFEST.MF</code>文件，前面就不用自己创建了，但是自动生成后还需要自行添加<code>Premain-Class</code>；<br><img src="/./images/1631260095271.png" alt="enter description here">[6]</p>
+<p>打包好后再操作：<code>Build</code> -&gt; <code>Build Artifacts</code> -&gt; <code>Build</code>；<br><img src="/./images/1631260042612.png" alt="enter description here">[7]</p>
+<p>然后会生成一个<code>out</code>文件夹，下面就有我们打好的jar包；<br><img src="/./images/1631260156726.png" alt="enter description here">[8]</p>
+<p>再新建一个Hello项目，写一个Hello类进行测试；<br><img src="/./images/1631262928962.png" alt="enter description here">[9]</p>
+<p>按着什么同样的方法打成jar包，只不过这一步要把main函数所在的类选上；<br><img src="/./images/1631263164134.png" alt="enter description here">[10]</p>
+<p>Build过后<code>out</code>文件夹下就生成了<code>Hello.jar</code>；<br><img src="/./images/1631264129909.png" alt="enter description here">[11]</p>
+<p>然后执行命令：<br><code>java -javaagent:Java_Agent.jar -jar ../Hello_jar/Hello.jar</code><br>注意两个jar包的路径要写对噢；<br>可以看到，在执行main函数之前，先执行了premain；<br><img src="/./images/1631264599363.png" alt="enter description here">[12]</p>
+<p>使用这种方法的流程图：<br><img src="/./images/1631277492318.png" alt="enter description here">[13]</p>
+<p>这种方法的缺点是只能在JVM启动时使用<code>javaagent</code>参数指定jar包，在实际情况下，目标的JVM通常都是已经启动的状态，无法预先指定<code>Premain-Class</code>。</p>
+<h3 id="AgentMain"><a href="#AgentMain" class="headerlink" title="AgentMain"></a>AgentMain</h3><p>和Premain差不多，需要在<code>META-INF/MANIFEST.MF</code>中指定一个<code>Agent-Class</code>：<br><img src="/./images/1631625800058.png" alt="enter description here">[14]</p>
+<p>这种方法不用在JVM启动前指定参数；</p>
+<p>写一个<code>AgentMain</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.agentmain;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.tools.attach.AgentInitializationException;</span><br><span class="line"><span class="keyword">import</span> com.sun.tools.attach.AgentLoadException;</span><br><span class="line"><span class="keyword">import</span> com.sun.tools.attach.AttachNotSupportedException;</span><br><span class="line"><span class="keyword">import</span> com.sun.tools.attach.VirtualMachine;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentMain</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, AgentLoadException, AgentInitializationException, AttachNotSupportedException &#123;</span><br><span class="line">	</span><br><span class="line">        <span class="comment">//获取传入的参数</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">id</span> <span class="operator">=</span> args[<span class="number">0</span>];</span><br><span class="line">        <span class="type">String</span> <span class="variable">jarName</span> <span class="operator">=</span> args[<span class="number">1</span>];</span><br><span class="line">        <span class="comment">//输出</span></span><br><span class="line">        System.out.println(<span class="string">&quot;id ==&gt; &quot;</span> + id);</span><br><span class="line">        System.out.println(<span class="string">&quot;jarName ==&gt; &quot;</span> + jarName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//根据Pid连接到JVM</span></span><br><span class="line">        <span class="type">VirtualMachine</span> <span class="variable">virtualMachine</span> <span class="operator">=</span> VirtualMachine.attach(id);</span><br><span class="line">        <span class="comment">//加载agentmain的jar包</span></span><br><span class="line">        virtualMachine.loadAgent(jarName);</span><br><span class="line">        <span class="comment">//断开连接</span></span><br><span class="line">        virtualMachine.detach();</span><br><span class="line">        </span><br><span class="line">        System.out.println(<span class="string">&quot;Hello, I&#x27;m blckder02!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打成jar包；<br><img src="/./images/1631686833331.png" alt="enter description here">[15]</p>
+<p>写一个<code>AgentDemo</code>，实现<code>agentmain</code>方法；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.agent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.instrument.Instrumentation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AgentDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">agentmain</span><span class="params">(String agentArgs, Instrumentation inst)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Hello, I&#x27;m agentmain!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打成jar包；<br><img src="/./images/1631686969539.png" alt="enter description here">[16]</p>
+<p>build过后out文件夹里面有这些：<br><img src="/./images/1631687036253.png" alt="enter description here">[17]</p>
+<p>这里我踩了一个坑，说我缺少<code>com.sun.tools.attach</code>依赖包，这个依赖包在<code>tools.jar</code>中，那么就手动将它加到模块中；<br><img src="/./images/1631687277258.png" alt="enter description here">[18]</p>
+<p>再另写一个测试类，以提供pid，其中sleep是为了防止进程过快结束；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.blckder02.test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Java Agent&quot;</span>);</span><br><span class="line">        Thread.sleep(<span class="number">1000000000</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行Test，该进程正在等待中；<br><img src="/./images/1631687453884.png" alt="enter description here">[19]</p>
+<p>在任务管理器中找到该进程的pid，用下面的语句传入参数（注意路径）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar ../AgentMain_jar/AgentMain.jar <span class="number">18892</span> <span class="string">&quot;Java_Agent.jar&quot;</span></span><br></pre></td></tr></table></figure>
+<p>但是我这里又出现报错；<br><img src="/./images/1631687730422.png" alt="enter description here">[20]</p>
+<p>经过网上搜索查找原因，说是找不到<code>attach.dll</code>文件，按着网上的方法进行操作之后还是没有解决问题；<br>按道理这样应该就没问题了，就先跳过这个问题吧。</p>
+<p>agnetmain的缺点就是，如果在加入agentmain前，危险类就已经被加载了的话，就检测不出来；<br>Java RASP多数是用premain。</p>
+<h2 id="Javassit"><a href="#Javassit" class="headerlink" title="Javassit"></a>Javassit</h2><p>Javassit就是用来修改字节码的，上一篇CC2里面大概讲了一下；<br>当我们HOOK到目的类的时候，就可以获取该类中想要修改的方法，用<code>insertBefore</code>在该方法里面插入代码，或者直接用<code>setBody</code>全部替换掉该方法的内容。</p>
+<h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h2><p>该例子是用<code>premain</code>作为Agent程序的入口；</p>
+<p>在pom.xml中添加javassit依赖包；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.javassist&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;javassist&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;<span class="number">3.24</span><span class="number">.1</span>-GA&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>一个Hello类，有一个sayHello方法；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.Premain;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Hello</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sayHello</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Hello, this is blckder02&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一个带有main方法的Test类，其中调用了Hello类的方法；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.agentmain;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.blckder02.Premain.Hello;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;this is main!&quot;</span>);</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Hello</span>().sayHello();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>PremainDemo类，实现了<code>premain</code>方法；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PremainDemo</span> &#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs, Instrumentation inst)</span> <span class="keyword">throws</span> NotFoundException, UnmodifiableClassException, ClassNotFoundException, CannotCompileException, IOException &#123;</span><br><span class="line">			inst.addTransformer(<span class="keyword">new</span> <span class="title class_">ClassFileTransformer</span>() &#123;</span><br><span class="line">				<span class="meta">@Override</span></span><br><span class="line">				<span class="keyword">public</span> <span class="type">byte</span>[] transform(ClassLoader loader, String className, Class&lt;?&gt; classBeingRedefined, ProtectionDomain protectionDomain, <span class="type">byte</span>[] classfileBuffer) <span class="keyword">throws</span> IllegalClassFormatException &#123;</span><br><span class="line">					<span class="comment">//输出加载的类的名称</span></span><br><span class="line">					System.out.println(className);</span><br><span class="line">					<span class="keyword">return</span> classfileBuffer;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;, <span class="literal">true</span>);</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>把Test和PremainDemo打成jar包，执行命令（注意路径）：<br><code>java -javaagent:Premain_Test.jar -jar ../AgentMain_jar/AgentMain.jar</code><br>执行后，会输出所有Test.jar运行过程中所加载的类，并且是先输出类，再输出<code>this is mian!</code>，充分说明了agent是在main函数运行之前运行；<br>接着再是调用了<code>sayHello</code>方法；<br><img src="/./images/1632145400315.png" alt="enter description here">[21]</p>
+<p>接下来我们要加入javassit，修改<code>sayHello</code>方法的内容；<br>在<code>transform</code>中添加hookHello类的代码，注意上面看到加载的类名是用<code>/</code>分割的；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PremainDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs, Instrumentation inst)</span> <span class="keyword">throws</span> NotFoundException, UnmodifiableClassException, ClassNotFoundException, CannotCompileException, IOException &#123;</span><br><span class="line">        inst.addTransformer(<span class="keyword">new</span> <span class="title class_">ClassFileTransformer</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="type">byte</span>[] transform(ClassLoader loader, String className, Class&lt;?&gt; classBeingRedefined, ProtectionDomain protectionDomain, <span class="type">byte</span>[] classfileBuffer) <span class="keyword">throws</span> IllegalClassFormatException &#123;</span><br><span class="line">                <span class="comment">//判断加载的类中是否有Hello类</span></span><br><span class="line">                <span class="keyword">if</span> (!<span class="string">&quot;cn/blckder02/Premain/Hello&quot;</span>.equals(className)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>];</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        bytes = buildMonitorClass();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (NotFoundException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (CannotCompileException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">return</span> bytes;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] buildMonitorClass() <span class="keyword">throws</span> NotFoundException, CannotCompileException, IOException &#123;</span><br><span class="line">        <span class="comment">//实例化ClassPool</span></span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">classPool</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPool</span>();</span><br><span class="line">        classPool.appendSystemPath();</span><br><span class="line">        <span class="comment">//获取Hello类</span></span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> classPool.get(<span class="string">&quot;cn.blckder02.Premain.Hello&quot;</span>);</span><br><span class="line">        <span class="comment">//获取sayHello方法</span></span><br><span class="line">        <span class="type">CtMethod</span> <span class="variable">ctMethod</span> <span class="operator">=</span> ctClass.getDeclaredMethod(<span class="string">&quot;sayHello&quot;</span>);</span><br><span class="line">        <span class="comment">//拷贝到新方法</span></span><br><span class="line">        <span class="type">CtMethod</span> <span class="variable">newMethod</span> <span class="operator">=</span> CtNewMethod.copy(ctMethod, ctClass, <span class="keyword">new</span> <span class="title class_">ClassMap</span>());</span><br><span class="line">        <span class="comment">//更改方法名</span></span><br><span class="line">        ctMethod.setName(<span class="string">&quot;sayHello$agent&quot;</span>);</span><br><span class="line">        <span class="comment">//在方法前插入目的代码</span></span><br><span class="line">        newMethod.insertBefore(<span class="string">&quot;&#123; System.out.println(\&quot;javassit success!\&quot;);&#125;&quot;</span>);</span><br><span class="line">        ctClass.addMethod(newMethod);</span><br><span class="line">        <span class="keyword">return</span> ctClass.toBytecode();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>rebuild后，执行上面一样的命令；<br><img src="/./images/1632145544331.png" alt="enter description here">[22]</p>
+<p>在调用<code>sayHello</code>方法前，进入javaagent，hook到Hello类，修改了<code>sayHello</code>的字节码，先执行我们添加的代码，再执行<code>sayHello</code>方法；</p>
+<h2 id="关于Java-RASP"><a href="#关于Java-RASP" class="headerlink" title="关于Java RASP"></a>关于Java RASP</h2><p>RASP是<code>Runtime application self-protection</code>的缩写，中文翻译为应用程序运行时防护，其与WAF等传统安全防护措施的主要区别于其防护层级更加底层——在功能调用前或调用时能获取访问到当前方法的参数等信息，根据这些信息来判定是否安全。</p>
+<p>简单说就是WAF是在参数传入时进行检测防御，然而将参数进行一定的编码等方式就可以绕过WAF检测；<br>RASP则是在传入参数执行时进行检测防御，不管前面对参数进行了怎样的编码，在实现功能前都会还原，所以能防御掉更多的攻击方法，当然，人外有人，还是有可以绕过的方法。</p>
+<p>这里不详细说RASP，大概描述一下RASP的防御机制；<br>差不多也是一个修改字节码的过程；</p>
+<p>Test类中是命令执行的代码，直接运行就弹出计算器；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/./images/1632156773608.png" alt="enter description here">[23]</p>
+<p>Test类在运行的时候加载几个跟命令执行有关的类；<br><img src="/./images/1632157077218.png" alt="enter description here">[24]</p>
+<p>在agent中以hook<code>java/lang/ProcessBuilder</code>类为例，调用的是start方法，使用javassit在Test类main方法执行前添加<code>return null</code>的代码，这样后面命令执行的代码就不会执行了；<br>修改一下<code>PremainDemo</code>类；</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PremainDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs, Instrumentation inst)</span> <span class="keyword">throws</span> NotFoundException, UnmodifiableClassException, ClassNotFoundException, CannotCompileException, IOException &#123;</span><br><span class="line">        inst.addTransformer(<span class="keyword">new</span> <span class="title class_">ClassFileTransformer</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="type">byte</span>[] transform(ClassLoader loader, String className, Class&lt;?&gt; classBeingRedefined, ProtectionDomain protectionDomain, <span class="type">byte</span>[] classfileBuffer) <span class="keyword">throws</span> IllegalClassFormatException &#123;</span><br><span class="line">                <span class="comment">//判断加载的类中是否有Hello类</span></span><br><span class="line">                <span class="keyword">if</span> (!<span class="string">&quot;java/lang/ProcessBuilder&quot;</span>.equals(className)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">0</span>];</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        bytes = buildMonitorClass();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (NotFoundException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (CannotCompileException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                    System.out.println(className);</span><br><span class="line">                    <span class="keyword">return</span> bytes;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//输出加载类的名称</span></span><br><span class="line">                <span class="comment">//System.out.println(className);</span></span><br><span class="line">                <span class="comment">//return classfileBuffer;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] buildMonitorClass() <span class="keyword">throws</span> NotFoundException, CannotCompileException, IOException &#123;</span><br><span class="line">        <span class="comment">//实例化ClassPool</span></span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">classPool</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPool</span>();</span><br><span class="line">        classPool.appendSystemPath();</span><br><span class="line">        <span class="comment">//获取Hello类</span></span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> classPool.get(<span class="string">&quot;java.lang.ProcessBuilder&quot;</span>);</span><br><span class="line">        <span class="comment">//获取sayHello方法</span></span><br><span class="line">        <span class="type">CtMethod</span> <span class="variable">ctMethod</span> <span class="operator">=</span> ctClass.getDeclaredMethod(<span class="string">&quot;start&quot;</span>);</span><br><span class="line">        <span class="comment">//拷贝到新方法</span></span><br><span class="line">        <span class="type">CtMethod</span> <span class="variable">newMethod</span> <span class="operator">=</span> CtNewMethod.copy(ctMethod, ctClass, <span class="keyword">new</span> <span class="title class_">ClassMap</span>());</span><br><span class="line">        <span class="comment">//更改方法名</span></span><br><span class="line">        ctMethod.setName(<span class="string">&quot;start$agent&quot;</span>);</span><br><span class="line">        <span class="comment">//在方法前插入目的代码</span></span><br><span class="line">        newMethod.insertBefore(<span class="string">&quot;&#123; System.out.println(\&quot;javassit success!\&quot;);\n return null; &#125;&quot;</span>);</span><br><span class="line">        ctClass.addMethod(newMethod);</span><br><span class="line">        <span class="keyword">return</span> ctClass.toBytecode();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>打成jar包，依然执行这条命令：<br><code>java -javaagent:Premain_Test.jar -jar ../AgentMain_jar/AgentMain.jar</code><br>成功拦截到命令执行代码；<br><img src="/./images/1632157560031.png" alt="enter description here">[25]</p>
+<p>总结就是，加入javaagent后，正常程序在执行前会先执行<code>-javaagent</code>参数对应jar包中的premain方法，premain对加载类进行一定检测，判断是否加载了危险类，对危险类进行拦截。</p>
+<p>上面仅仅是我对RASP的一个理解，还有很多涉及到底层的东西需要好好研究，以后有机会再说叭。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>如果你无聊的看完了，你肯定什么也没看懂，哈哈哈；我太懒了，将个就。看下面的链接讲得很详细喔。</p>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/nice0e3/p/13811335.html">https://www.cnblogs.com/nice0e3/p/13811335.html</a><br><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9450">https://xz.aliyun.com/t/9450</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/nice0e3/p/14086165.html">https://www.cnblogs.com/nice0e3/p/14086165.html</a><br><a target="_blank" rel="noopener" href="https://my.oschina.net/u/4330655/blog/4186687">https://my.oschina.net/u/4330655/blog/4186687</a><br><a target="_blank" rel="noopener" href="https://paper.seebug.org/1041/">https://paper.seebug.org/1041/</a></p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/19/%E7%AE%80%E8%BF%B0%20Java%20Agent%E7%BB%93%E5%90%88Javassit%E4%BF%AE%E6%94%B9%E5%AD%97%E8%8A%82%E7%A0%81/">http://example.com/2022/09/19/%E7%AE%80%E8%BF%B0%20Java%20Agent%E7%BB%93%E5%90%88Javassit%E4%BF%AE%E6%94%B9%E5%AD%97%E8%8A%82%E7%A0%81/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>

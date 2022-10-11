@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="/null">
     <link rel="icon" type="image/png" href="/null">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-    <title>Java  Commons Collections 7分析 - Hexo</title>
+    <title>Java  Commons Collections 7分析 - blckder02&#39;s blog</title>
     
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     
@@ -464,7 +464,7 @@ header .header__right .dropdown-menus .dropdown-menu {
       
       <span class="post-meta">
         <span class="p-dot"></span>
-        共 1.4k 字
+        共 1.3k 字
       </span>
     
     
@@ -475,7 +475,7 @@ header .header__right .dropdown-menus .dropdown-menu {
 <div class="article-m">
   <div class="post-toc">
     
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">利用链分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">POC分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC%E8%B0%83%E8%AF%95"><span class="toc-number">4.</span> <span class="toc-text">POC调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%96%91%E9%97%AE"><span class="toc-number">6.</span> <span class="toc-text">疑问</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">利用链分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">POC分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC%E8%B0%83%E8%AF%95"><span class="toc-number">4.</span> <span class="toc-text">POC调试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
     
   </div>
     <div id="article">
@@ -522,7 +522,6 @@ header .header__right .dropdown-menus .dropdown-menu {
 <p>命令执行成功；<br><img src="/./images/1635505496253.png" alt="enter description here">[15]</p>
 <p>参考链接：<br><a target="_blank" rel="noopener" href="https://paper.seebug.org/1242/#commons-collections-7">https://paper.seebug.org/1242/#commons-collections-7</a></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>CC链就先分析到这里，8、9、10等剩下的链以后再接着分析；<br>CC1-7涉及两个CC版本，3.1和4.0；<br>3.1版本基本就是通过各种途径去调用<code>LazyMap#get</code>，从而实现RCE；<br>4.0版本则是通过调用<code>TransformingComparator#compare</code>来实现RCE；<br>虽然几条链分析下来都大同小异，但也提升了不少分析代码的能力，获益匪浅。</p>
-<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><p>代码：<code>lazyMap2.remove(&quot;yy&quot;);</code><br><code>yy</code>怎么在lazyMap2里</p>
 
       </div>
     </div>

