@@ -14,7 +14,7 @@
     
     
     <meta name="description" content="">
-    <meta name="author" content="John Doe">
+    <meta name="author" content="blckder02">
     <meta name="keywords" content="">
     <style>
 
@@ -449,7 +449,7 @@ header .header__right .dropdown-menus .dropdown-menu {
   <h3>Java注解</h3>
     
       <span class="post-meta-label">
-        John Doe
+        blckder02
       </span>
     
     
@@ -570,7 +570,7 @@ header .header__right .dropdown-menus .dropdown-menu {
 <h2 id="自定义注解"><a href="#自定义注解" class="headerlink" title="自定义注解"></a>自定义注解</h2><p>看了前面那么多例子，差不多也知道注解该怎么写了；<br><strong>格式：</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//任意个元注解或内置注解</span></span><br><span class="line">@...</span><br><span class="line">@...</span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> 注解名称&#123;</span><br><span class="line">	<span class="comment">//任意个属性</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>注解本质上就是一个接口，默认继承<code>java.lang.annotation.Annotation</code>；<br><code>Annotation</code>是所有注解类型扩展的公共接口，手动扩展这个接口不限定注解类型，且此接口本身不是注解类型。</p>
-<h2 id="使用注解"><a href="#使用注解" class="headerlink" title="使用注解"></a>使用注解</h2><p>使用注解的目的是获取注解中定义的属性值，而注解是通过反射获取的；<br>以<a target="_blank" rel="noopener" href="http://www.blckder02.cn/index.php/archives/982/">Java反射</a>中的<code>ReflectTest.java</code>为例，注解可以用来替换1、2步配置文件的相关操作；</p>
+<h2 id="使用注解"><a href="#使用注解" class="headerlink" title="使用注解"></a>使用注解</h2><p>使用注解的目的是获取注解中定义的属性值，而注解是通过反射获取的；<br>以<a href="http://www.blckder02.cn/index.php/archives/982/">Java反射</a>中的<code>ReflectTest.java</code>为例，注解可以用来替换1、2步配置文件的相关操作；</p>
 <p>先自定义一个注解<code>@Anno1</code>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.blckder02.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.ElementType;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Retention;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.RetentionPolicy;</span><br><span class="line"><span class="keyword">import</span> java.lang.annotation.Target;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Target(&#123;ElementType.TYPE&#125;)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Anno1 &#123;</span><br><span class="line">    String <span class="title function_">className</span><span class="params">()</span>;</span><br><span class="line">    String <span class="title function_">methodName</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -612,18 +612,11 @@ header .header__right .dropdown-menus .dropdown-menu {
 
 <div class="post-footer">
   
-  <div class="donate text-center">
-    <span>喜欢这篇文章？为什么不考虑打赏一下作者呢？</span>
-    <div class="donate-way">
-      
-    </div>
-  </div>
-  
 
   <div class="post-copyright">
-    <p style="margin: 5px 0;">文章作者：<a href="/">John Doe</a></p>
-    <p style="margin: 5px 0;">文章链接：<a href="http://example.com/2022/09/19/Java%E6%B3%A8%E8%A7%A3/">http://example.com/2022/09/19/Java%E6%B3%A8%E8%A7%A3/</a></p>
-    <p style="margin: 5px 0;">版权声明：本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处，谢谢。</p>
+    <p style="margin: 5px 0;">文章作者：<a href="/">blckder02</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://www.blckder02.cn/2022/09/19/Java%E6%B3%A8%E8%A7%A3/">http://www.blckder02.cn/2022/09/19/Java%E6%B3%A8%E8%A7%A3/</a></p>
+    <p style="margin: 5px 0;">版权声明：</p>
   </div>
   
 </div>
