@@ -443,38 +443,6 @@ header .header__right .dropdown-menus .dropdown-menu {
       
       <article class="index-card-info">
         <h3 class="index-header">
-          <a href="/2022/09/17/DC-2%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/">
-          
-          DC-2靶机渗透</a>
-        </h3>
-        <p class="index-excerpt">
-            
-            
-              
-            
-            测试环境kali Linux：192.168.93.129DC-1靶机：192.168.93.132
-信息收集
-确定靶机IP 将靶机的网络模式设置成NAT模式，与攻击机处于同一网段下； 用nmap扫描该网段存活的主机  nmap -sP 192.168.93.1/24[1] 其中192.168.93.132就是靶机的IP。
-
-确定靶机开放的端口 使用命令 nmap 192.16893.132 -p
-        </p>
-        <div class="index-btm post-metas">
-          
-            
-              <time datetime="2022-09-17 15:26" pubdate>
-                2022-09-17
-              </time>
-            
-          
-          
-        </div>
-      </article>
-    </div>
-  
-    <div class="index-card">
-      
-      <article class="index-card-info">
-        <h3 class="index-header">
           <a href="/2022/09/17/DC-1%E9%9D%B6%E6%9C%BA%E6%B8%97%E9%80%8F/">
           
           DC-1靶机渗透</a>
@@ -527,6 +495,36 @@ header .header__right .dropdown-menus .dropdown-menu {
             
               <time datetime="2022-09-17 15:24" pubdate>
                 2022-09-17
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+    <div class="index-card">
+      
+      <article class="index-card-info">
+        <h3 class="index-header">
+          <a href="/2022/09/16/%E5%A4%8D%E4%B9%A0/">
+          
+          学习笔记</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            SQL注入
+概述：SQL注入就是一些web应用程序将前端用户可控的参数传入后端，带入数据库查询的操作；造成SQL注入的基本原因是没有对用户传入参数的合法性进行严格的判断，以至于攻击者可以构造任意SQL语句对数据库进行操作。
+SQL注入漏洞产生的条件？  参数用户可控：前端传给后端的参数内容是用户可以控制的；  参数带入了数据库查询：传入的参数拼接到SQL语句，且带入数据库查询。  (所以开发者最好
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-09-16 15:25" pubdate>
+                2022-09-16
               </time>
             
           
