@@ -454,6 +454,74 @@ header .header__right .dropdown-menus .dropdown-menu {
       
       <article class="index-card-info">
         <h3 class="index-header">
+          <a href="/2022/11/05/Spring%20Security%20Oauth2%20%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%EF%BC%88CVE-2018-1260%EF%BC%89/">
+          
+          Spring Security Oauth2 远程代码执行（CVE-2018-1260）</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            前言官方公告：https://tanzu.vmware.com/security/cve-2018-1260
+漏洞描述恶意用户或攻击者可以向授权端点发出授权请求，当资源所有者被转发到批准端点时，这可能导致远程代码执行。
+利用条件
+
+服务端作为授权服务器时（有 @EnableAuthorizationServer 标注）
+使用了默认审批终端，或重写的审批终端逻辑中对输出内容进行了 SPEL 表达式解
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-11-05 15:50" pubdate>
+                2022-11-05
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+    <div class="index-card">
+      
+      <article class="index-card-info">
+        <h3 class="index-header">
+          <a href="/2022/10/31/Spring%20Security%20Oauth%20RCE%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88CVE-2016-4977%EF%BC%89/">
+          
+          Spring Security Oauth RCE漏洞分析（CVE-2016-4977）</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            前言官方公告：https://tanzu.vmware.com/security/cve-2016-4977
+漏洞描述当使用 whitelabel 视图处理授权请求时，response_type参数值被作为 Spring SpEL 执行，这使得恶意用户能够通过创建response_type的值来触发远程代码执行。
+影响版本
+
+2.0.0 to 2.0.9
+1.0.0 to 1.0.5
+
+环境搭建漏
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-10-31 15:30" pubdate>
+                2022-10-31
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+    <div class="index-card">
+      
+      <article class="index-card-info">
+        <h3 class="index-header">
           <a href="/2022/10/10/Spring%20Boot%20Actuator%20%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%EF%BC%88CNVD-2019-11630%EF%BC%89/">
           
           Spring Boot Actuator 命令执行漏洞分析（CNVD-2019-11630）</a>
@@ -697,72 +765,6 @@ Model： 它是应用程序的主体部分，主要由以下 2 部分组成： �
           
             
               <time datetime="2022-09-19 19:32" pubdate>
-                2022-09-19
-              </time>
-            
-          
-          
-        </div>
-      </article>
-    </div>
-  
-    <div class="index-card">
-      
-      <article class="index-card-info">
-        <h3 class="index-header">
-          <a href="/2022/09/19/Jackson%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%20RCE/">
-          
-          Jackson 反序列化 RCE</a>
-        </h3>
-        <p class="index-excerpt">
-            
-            
-              
-            
-            CVE-2017-7525影响版本
-
-Jackson 2.6系列 &lt; 2.6.7.1
-Jackson 2.7系列 &lt; 2.7.9.1
-Jackson 2.8系列 &lt; 2.8.8.1
-
-环境搭建我用的是 JDK 8u20，对 JDK 的版本要求比较不确定，网上大部分人用 7u21 能复现，但是我的不行，得自己多试试。
-导入依赖：
-123456789101112131415&lt;d
-        </p>
-        <div class="index-btm post-metas">
-          
-            
-              <time datetime="2022-09-19 19:31" pubdate>
-                2022-09-19
-              </time>
-            
-          
-          
-        </div>
-      </article>
-    </div>
-  
-    <div class="index-card">
-      
-      <article class="index-card-info">
-        <h3 class="index-header">
-          <a href="/2022/09/19/Jackson%20%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0/">
-          
-          Jackson 简单学习</a>
-        </h3>
-        <p class="index-excerpt">
-            
-            
-              
-            
-            前言Jackson是一个开源的Java序列化和反序列化工具，可以将Java对象序列化为XML或JSON格式的字符串，以及将XML或JSON格式的字符串反序列化为Java对象。
-需要在工程中导入依赖：
-12345&lt;dependency&gt;    &lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;    &lt;artifact
-        </p>
-        <div class="index-btm post-metas">
-          
-            
-              <time datetime="2022-09-19 19:31" pubdate>
                 2022-09-19
               </time>
             

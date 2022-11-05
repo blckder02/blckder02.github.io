@@ -443,6 +443,72 @@ header .header__right .dropdown-menus .dropdown-menu {
       
       <article class="index-card-info">
         <h3 class="index-header">
+          <a href="/2022/09/19/Java%E5%8F%8D%E5%B0%84/">
+          
+          Java反射</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            概述反射：框架设计的灵魂
+
+框架：半成品软件；可以在框架的基础上进行软件开发，简化编码。
+反射：将类的各个组成部分封装为其他对象。
+
+下面大概介绍一下Java代码在计算机中经历的三个阶段：
+
+第一阶段——Source源代码阶段：首先写一个类文件Person.java，类里面可以写一些成员变量、构造方法、成员方法等；经过javac编译后在硬盘上生成一个字节码文件Person.class，里面保存了成
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-09-19 19:26" pubdate>
+                2022-09-19
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+    <div class="index-card">
+      
+      <article class="index-card-info">
+        <h3 class="index-header">
+          <a href="/2022/09/19/Java%E6%B3%A8%E8%A7%A3/">
+          
+          Java注解</a>
+        </h3>
+        <p class="index-excerpt">
+            
+            
+              
+            
+            概述什么是注解？跟注释一样吗？注解和注释可不一样，注释是用文字描述、解释程序，是给程序员看的，为了让程序员更快速的了解程序功能；而注解是一种代码级别的说明，用来说明程序，是给计算机看的，可理解为给程序贴上了一个标签。
+百度百科是这样解释的：
+
+注解，可以看作是对 一个 类&#x2F;方法 的一个扩展的模版，每个 类&#x2F;方法 按照注解类中的规则，来为 类&#x2F;方法 注解不同的参数，在用
+        </p>
+        <div class="index-btm post-metas">
+          
+            
+              <time datetime="2022-09-19 19:25" pubdate>
+                2022-09-19
+              </time>
+            
+          
+          
+        </div>
+      </article>
+    </div>
+  
+    <div class="index-card">
+      
+      <article class="index-card-info">
+        <h3 class="index-header">
           <a href="/2022/09/18/Discuz!%E4%BB%BB%E6%84%8F%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%20%20CVE-2018-14729/">
           
           Discuz!任意代码执行漏洞  CVE-2018-14729</a>
@@ -675,80 +741,6 @@ payload：?username=echod&quot;%0Aeval($_GET[1]);/
           
             
               <time datetime="2022-09-18 15:23" pubdate>
-                2022-09-18
-              </time>
-            
-          
-          
-        </div>
-      </article>
-    </div>
-  
-    <div class="index-card">
-      
-      <article class="index-card-info">
-        <h3 class="index-header">
-          <a href="/2022/09/18/Typecho%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/">
-          
-          Typecho反序列化漏洞分析</a>
-        </h3>
-        <p class="index-excerpt">
-            
-            
-              
-            
-            环境搭建源码下载地址：http://down.chinaz.com/soft/24709.htm访问/admin/进行安装；
-漏洞简介install.php存在反序列化漏洞可执行任意命令实现前台getshell。
-影响范围2017年10月24日之前的所有版本
-漏洞分析程序运行到这里需要两个条件：
-
-$_GET[‘finish’]参数不为空；
-Referer必须是本站[0]
-
-install.php
-        </p>
-        <div class="index-btm post-metas">
-          
-            
-              <time datetime="2022-09-18 15:22" pubdate>
-                2022-09-18
-              </time>
-            
-          
-          
-        </div>
-      </article>
-    </div>
-  
-    <div class="index-card">
-      
-      <article class="index-card-info">
-        <h3 class="index-header">
-          <a href="/2022/09/18/%E9%80%9A%E8%BE%BEOA%E6%9C%AA%E6%8E%88%E6%9D%83%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0&%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E5%AF%BC%E8%87%B4RCE%E5%88%86%E6%9E%90/">
-          
-          通达OA未授权文件上传&amp;任意文件包含导致RCE分析</a>
-        </h3>
-        <p class="index-excerpt">
-            
-            
-              
-            
-            影响版本
-V11.3版
-2017版
-2016版
-2015版
-2013版
-2013增强版
-
-未授权访问文件上传代码分析 &#x2F;ispirit&#x2F;im&#x2F;upload.php
-4-14行：
-1234567891011$P = $_POST[&quot;P&quot;];if (isset($P) || ($P != &quot;&quot;)) &#123;	ob_start()
-        </p>
-        <div class="index-btm post-metas">
-          
-            
-              <time datetime="2022-09-18 15:21" pubdate>
                 2022-09-18
               </time>
             
