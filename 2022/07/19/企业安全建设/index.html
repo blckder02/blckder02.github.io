@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>企业安全建设 - 百鸟成行</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="blckder02">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>企业安全建设</h3>
+    
+      <span class="post-meta-label">
+        blckder02
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-07-19 15:17" pubdate>
+          2022-07-19
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 3.3k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%84%E9%81%BF%E9%A3%8E%E9%99%A9"><span class="toc-number">1.</span> <span class="toc-text">规避风险</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SDL"><span class="toc-number">2.</span> <span class="toc-text">SDL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BB%8E%E6%8A%80%E6%9C%AF%E5%B2%97%E8%BD%AC%E4%B8%BA%E9%9D%9E%E6%8A%80%E6%9C%AF%E5%B2%97"><span class="toc-number">3.</span> <span class="toc-text">为什么要从技术岗转为非技术岗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%83%B3%E5%9C%A8%E5%8E%9F%E5%85%AC%E5%8F%B8%E5%B9%B2%E4%BA%86"><span class="toc-number">4.</span> <span class="toc-text">为什么不想在原公司干了</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9%E8%BF%90%E8%90%A5%E5%B2%97"><span class="toc-number">5.</span> <span class="toc-text">为什么选择运营岗</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%A0%E6%89%80%E8%AE%A4%E4%B8%BA%E7%9A%84%E5%AE%89%E5%85%A8%E8%BF%90%E8%90%A5%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84"><span class="toc-number">6.</span> <span class="toc-text">你所认为的安全运营是怎样的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E8%BA%AB%E6%9C%89%E4%BB%80%E4%B9%88%E4%BC%98%E5%8A%BF"><span class="toc-number">7.</span> <span class="toc-text">自身有什么优势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%B8%8E%E4%B8%9A%E5%8A%A1%E6%B2%9F%E9%80%9A"><span class="toc-number">7.1.</span> <span class="toc-text">如何与业务沟通</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E4%BA%A7%E5%93%81"><span class="toc-number">8.</span> <span class="toc-text">安全产品</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#EDR%EF%BC%88%E7%BB%88%E7%AB%AF%E6%A3%80%E6%B5%8B%E4%B8%8E%E5%93%8D%E5%BA%94%EF%BC%8CEndpoint-Detection-and-Response%EF%BC%89"><span class="toc-number">8.1.</span> <span class="toc-text">EDR（终端检测与响应，Endpoint Detection and Response）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HDIS%EF%BC%88%EF%BC%88%E5%9F%BA%E4%BA%8E%E4%B8%BB%E6%9C%BA%E7%9A%84%EF%BC%89%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%E7%B3%BB%E7%BB%9F%EF%BC%8CHost-based-Intrusion-Detection-System%EF%BC%89"><span class="toc-number">8.2.</span> <span class="toc-text">HDIS（（基于主机的）入侵检测系统，Host-based Intrusion Detection System）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NIDS%EF%BC%88%E5%9F%BA%E4%BA%8E%E7%BD%91%E7%BB%9C%E7%9A%84%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B%EF%BC%8CNetwork-Intrusion-Detection-System%EF%BC%89"><span class="toc-number">8.3.</span> <span class="toc-text">NIDS（基于网络的入侵检测，Network Intrusion Detection System）</span></a></li></ol></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <p>排查已存在的安全问题，及时修复<br>对现有的产品、业务等进行安全审计，找出潜在风险并修复<br>对即将上线的新业务做好安全测试<br>制定风险预防方案，进行应急演练等</p>
+<h2 id="规避风险"><a href="#规避风险" class="headerlink" title="规避风险"></a>规避风险</h2><ol>
+<li>建设攻防实验平台，进行一定的实战演练和安全检测等</li>
+<li>部署蜜罐，收集黑客的攻击信息，去检测相应攻击点</li>
+<li>对公司资产进行安全评估，保证明显无安全问题；</li>
+<li>合理分配权限，将权限最小化，避免一个账户沦陷导致整个系统沦陷</li>
+<li>关注各大安全预警信息，及时排查公司资产情况</li>
+<li>人员安全意识培训</li>
+</ol>
+<p>主机安全：进行漏洞扫描，检查系统版本、补丁情况、配置信息、账号清查<br>应用安全：进行漏洞扫描，账号弱口令检查，应用配置信息，身份认证情况<br>网络安全：进行漏洞扫描，检查开放的服务，服务配置，网络划分情况，边界防护</p>
+<h2 id="SDL"><a href="#SDL" class="headerlink" title="SDL"></a>SDL</h2><p>SDL就是将安全嵌入到产品开发的每一个环节中去，在需求分析、设计、功能实现、产品发布等阶段都添加相应的安全检查，将成品出现安全问题的风险降到最小。</p>
+<p>对需求方面的安全把控，比如，之前就有的攻击者冒充普通用户去给开发厂商提需求，说要增加对一个函数的使用，当这个需求被实现后，攻击者就恰好可以利用新增的函数进行攻击，这就是对需求安全的把控不严格导致。</p>
+<p>安全培训：培训员工安全意识<br>需求分析：业务安全需求分析、确认安全需求、行业安全实践<br>安全设计：威胁建模、分析攻击面、安全设计规范<br>安全开发：安全开发规范、安全开发组件<br>安全测试：黑、白盒，灰盒测试，开源安全审查，安全Checklist<br>安全上线：上线安全检查、配置安全、上线Checklist<br>应急响应：漏洞预警，入侵检测攻击，防护手段，应急服务</p>
+<h2 id="为什么要从技术岗转为非技术岗"><a href="#为什么要从技术岗转为非技术岗" class="headerlink" title="为什么要从技术岗转为非技术岗"></a>为什么要从技术岗转为非技术岗</h2><p>在学校的时候，没有机会接触到完整的安全体系，只能通过学习技术知识来提升自己的能力，将技术水平的高低作为一个评判自身能力的标准。之前选择研究岗的原因也是觉得能从事研究岗是对自己技术能力的一种认可。但是后来发现研究内容是跟公司需求挂钩的，并不是自己想研究什么就研究什么。而且实习之后，感觉我目前公司的工作内容比较枯燥，难以调动我工作的积极性。后来有接触到一些在安全运营岗位工作的学长学姐，了解安全运营的一些工作内容，我还是挺感兴趣的。现在有这么一个机会可以从事安全运营工作，而且还是甲方的安全运营，就想来试一试。</p>
+<h2 id="为什么不想在原公司干了"><a href="#为什么不想在原公司干了" class="headerlink" title="为什么不想在原公司干了"></a>为什么不想在原公司干了</h2><p>当初选择安全研究岗位是因为在学校里面学习安全的时候接触到技术方面的知识比较多，也觉得从事安全研究行业能更深入的了解某些技术手段。但是实习之后发现公司需要研究的东西和自己想的不是一回事，我干的事大部分就是漏洞分析和漏洞挖掘方面，我觉得这两件事过于单一，没有直接的价值体现。而且乙方的安全大多都是为甲方安全服务的。现在有机会到甲方从事安全工作，当然是自身价值最直接的体现。<br>在甲方能够直观的了解整个安全体系的建设过程并且参与其中，能够清晰的知道每一项安全工作对公司的重要性。<br>而且原神是我一直在玩的一款游戏，能够进入米哈游工作也算是游戏迷的一个愿望。<br>（想深入了解米哈游的文化理念，希望能成为其中的一份子。）</p>
+<h2 id="为什么选择运营岗"><a href="#为什么选择运营岗" class="headerlink" title="为什么选择运营岗"></a>为什么选择运营岗</h2><p>我有了解到安全运营岗位能接触到的安全环节比较多，从业务开发到风险修复，每个环节都能学到很多东西，对自身的能力提升有很大作用。而且我本来也是做漏洞方面的，对业务潜在的漏洞和已发现的漏洞都能充分理解，从而能很好地协调各部门配合对漏洞进行修复。算是将我的漏洞知识运用到实际的企业场景中，这也是我想达到的一个目标。</p>
+<h2 id="你所认为的安全运营是怎样的"><a href="#你所认为的安全运营是怎样的" class="headerlink" title="你所认为的安全运营是怎样的"></a>你所认为的安全运营是怎样的</h2><p>我觉得安全运营就是以解决公司安全问题为最终目标，制定一系列小指标，通过逐个完成指标来使能够公司安全、稳定的运行。<br>安全运营需要去发现问题、处理问题，形成闭环。协调各部门一起治理安全风险，拉通对齐，起到一个纽带的作用。<br>安全运营要持续优化管理流程，提升公司员工是安全意识，做好事前防护、事中检测、事后响应的能力建设。不断循环、优化整个流程，将公司的安全风险、安全目标、安全策略等做到可量化、可执行、可管理。</p>
+<h2 id="自身有什么优势"><a href="#自身有什么优势" class="headerlink" title="自身有什么优势"></a>自身有什么优势</h2><p>我之前的主要工作内容就是漏洞分析，所以对漏洞的原理、利用和防御等比较熟悉，刚好可以转化为安全运营处理漏洞、风险的能力，能更好的理解漏洞产生的原因，可以较快地提出修复方案交给业务人员处理。并且也熟悉漏洞的一些检测方式，能够为完善SDL流程提出建议。</p>
+<h3 id="如何与业务沟通"><a href="#如何与业务沟通" class="headerlink" title="如何与业务沟通"></a>如何与业务沟通</h3><p>在确定风险的第一时间，通知业务部门负责修复这个风险的员工，告知他该风险目前已造成什么样的危害和影响范围等信息，确定一个修复截止时间，让他在截止时间前将这个风险处理完毕。在处理风险期间，可以适时跟进、同步一下修复进度。若快到规定的截止时间还未完全修复，则根据工作进度再催促一下，或者再衡量一下该员工手上其他工作的优先级，看能否再延期。</p>
+<p><strong>量化指标</strong><br>当前资产监控的覆盖率<br>当前资产基线安全的合格率<br>当前业务安全已知风险漏洞的解决率</p>
+<p><strong>覆盖率</strong><br>包括资产管理、流量管理、安全管理的覆盖情况，有没有未知资产或无归属人的资产<br><strong>准确率</strong><br>主要是告警的准确率<br><strong>时效性</strong><br>威胁处理的时间点等</p>
+<p><strong>自动化</strong><br>自动生成漏洞报告<br>自动关联漏洞修复人<br>自动排查即将逾期的未修复漏洞<br>自动催修</p>
+<h2 id="安全产品"><a href="#安全产品" class="headerlink" title="安全产品"></a>安全产品</h2><h3 id="EDR（终端检测与响应，Endpoint-Detection-and-Response）"><a href="#EDR（终端检测与响应，Endpoint-Detection-and-Response）" class="headerlink" title="EDR（终端检测与响应，Endpoint Detection and Response）"></a>EDR（终端检测与响应，Endpoint Detection and Response）</h3><p>EDR是记录和存储端点系统级行为，通过使用多种数据分析技术检测可疑系统行为，提供关联信息，从而阻止恶意行为并为受影响的系统提供修复建议的一种解决方案。<br>EDR是一种主动式端点安全解决方案，通过记录终端与网络事件（例如用户，文件，进程，注册表，内存和网络事件），并将这些信息本地存储在端点或集中数据库。结合已知的攻击指示器(Indicators of Compromise，IOCs)、行为分析的数据库来连续搜索数据和机器学习技术来监测任何可能的安全威胁，并对这些安全威胁做出快速响应。还有助于快速调查攻击范围，并提供响应能力。<br>EDR解决方案需要有以下四个关键能力：检测安全事件、遏制威胁、调查安全事件、提供修复指导。<br>EDR解决方案必须能够检测的无文件恶意活动；EDR要具有可扩展的数据管理，数据挖掘分析能力和检测技术，要做到对不断变化的攻击者技术的深入了解。</p>
+<p>不同于以往的端点被动防护思路，而是通过云端威胁情报、机器学习、异常行为分析、攻击指示器等方式，主动发现来自外部或内部的安全威胁，并进行自动化的阻止、取证、补救和溯源，从而有效对端点进行防护。</p>
+<p>（1）资产发现：定期通过主动扫描、被动发现、手工录入和人工排查等多种方法收集当前网络中所有软硬件资产，包括全网所有的端点资产和在用的软件名称、版本，确保整个网络中没有安全盲点。<br>（2）系统加固：定期进行漏洞扫描、补丁修复、安全策略设置和更新端点软件清单，通过软件白名单限制未经授权的软件运行，通过主机防火墙限制未经授权的服务端口开放，并定期检查和清理内部人员的账号和授权信息。<br>（3）威胁检测：通过端点本地的主机入侵检测和借助云端威胁情报、异常行为分析、攻击指示器等方式，针对各类安全威胁，在其发生前、发生中、发生后进行相应的安全检测动作。<br>（4）响应取证：针对全网的安全威胁进行可视化展示，能够针对安全威胁自动化地进行隔离、修复和补救，自动完成安全威胁的调查、分析和取证工作，降低事件响应和取证分析的技术门槛，不需要依赖于外部专家即可完成快速响应和取证分析。</p>
+<h3 id="HDIS（（基于主机的）入侵检测系统，Host-based-Intrusion-Detection-System）"><a href="#HDIS（（基于主机的）入侵检测系统，Host-based-Intrusion-Detection-System）" class="headerlink" title="HDIS（（基于主机的）入侵检测系统，Host-based Intrusion Detection System）"></a>HDIS（（基于主机的）入侵检测系统，Host-based Intrusion Detection System）</h3><p>HIDS 是即基于主机型入侵检测系统。作为计算机系统的监视器和分析器，它并不作用于外部接口，而是专注于系统内部，监视系统全部或部分的动态的行为以及整个计算机系统的状态。主机层可检测的入侵威胁有很多，如系统提权、异常登录、反弹 shell、网络嗅探、内存注入、异常进程行为、异常文件读写、异常网络通信、病毒后门、安全漏洞、配置缺陷等。</p>
+<p>① HIDS将代理安装在受保护的系统中，它要求与操作系统内核和服务紧密捆绑在一起，监控各种系统事件，如对内核或API的调用，以此来进行防御。<br>② HIDS还可以监测特定的系统文件和可执行文件调用，以及Windows NT下的安全记录和Unix环境下的系统记录。<br>③ HIDS能对检测的入侵行为、事件给予积极的反应，比如断开连接、封掉用户账号、杀死进程、提交警报等。<br>④ HIDS技能要求非常高，要求开发HIDS的企业对有关的操作系统非常了解，而且安装在主机上的代理必须非常可靠，系统占用小，自身安全性要好，否则将会对系统产生负面影响。<br>⑤ HIDS关注的是到达主机的各种安全威胁，并不关注网络的安全。<br>⑥ HIDS由于采取的是对事件和系统调用的监控，衡量它的技术指标非常少。</p>
+<h3 id="NIDS（基于网络的入侵检测，Network-Intrusion-Detection-System）"><a href="#NIDS（基于网络的入侵检测，Network-Intrusion-Detection-System）" class="headerlink" title="NIDS（基于网络的入侵检测，Network Intrusion Detection System）"></a>NIDS（基于网络的入侵检测，Network Intrusion Detection System）</h3><p>NIDS 即基于网络的入侵检测，主要用于检测 Hacker 或 Cracker 通过网络进行的入侵行为，是指对收集漏洞信息、造成拒绝访问及获取超出合法范围的系统控制权等危害计算机系统安全的行为，进行检测的软件与硬件的组合。NIDS 的运行方式有两种，一种是在目标主机上运行以监测其本身的通信信息， 另一种是在一台单独的机器上运行以监测所有网络设备的通信信息，比如 Hub、路由器。</p>
+<p>NIDS 以所检测网段的所有流量作为其数据源，在以太网环境下，它通过将网卡设置为混杂模式来抓取所监测网段内的混合数据包。一般来说入侵检测系统担负着保护整个网段的任务。在交换环境下，为了抓取所需的数据，NIDS 的放置需要精心的设计。</p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">blckder02</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://www.blckder02.cn/2022/07/19/%E4%BC%81%E4%B8%9A%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%BE/">http://www.blckder02.cn/2022/07/19/%E4%BC%81%E4%B8%9A%E5%AE%89%E5%85%A8%E5%BB%BA%E8%AE%BE/</a></p>
+    <p style="margin: 5px 0;">版权声明：</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    <p>
+        <span>
+            <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+                蜀ICP备2021017961号-1
+            </a>
+        </span>
+        
+    </p>
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>

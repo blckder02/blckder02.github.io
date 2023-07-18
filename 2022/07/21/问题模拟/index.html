@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>问题模拟 - 百鸟成行</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="blckder02">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>问题模拟</h3>
+    
+      <span class="post-meta-label">
+        blckder02
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-07-21 15:17" pubdate>
+          2022-07-21
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 3.9k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text">SQL注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#XSS"><span class="toc-number">2.</span> <span class="toc-text">XSS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSP"><span class="toc-number">3.</span> <span class="toc-text">CSP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSRF"><span class="toc-number">4.</span> <span class="toc-text">CSRF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">5.</span> <span class="toc-text">文件上传</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">6.</span> <span class="toc-text">文件包含</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">7.</span> <span class="toc-text">渗透测试</span></a></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><ol>
+<li>什么是SQL注入？<br>  SQL注入就是一些web应用程序将前端用户可控的参数传入后端，带入数据库查询的操作；造成SQL注入的基本原因是没有对用户传入参数的合法性进行严格的判断，以至于攻击者可以构造任意SQL语句对数据库进行操作。</li>
+<li>SQL注入漏洞产生的条件？<br>  参数用户可控：前端传给后端的参数内容是用户可以控制的；<br>  参数带入了数据库查询：传入的参数拼接到SQL语句，且带入数据库查询。<br>  所以开发者最好不要完全相信外部输入的参数</li>
+<li>什么是盲注？<br>  分为布尔盲注和时间盲注；<br>  <strong>布尔盲注</strong>：是值构造SQL判断语句，通过查看页面返回的结果来判断查询的条件是否成立，从而获取数据库中的数据；<br>  可以用<code>length</code>来判断数据库名称的长度，<code>substr</code>来逐个判断名称的字符；<br>  从代码层面判断是否有布尔注入：根据用户传入的参数，只显示正确和错误两种情况，并不返回数据库中的任何信息。<br>  <strong>时间盲注：</strong> 是指利用<code>sleep()</code>、<code>benchmark()</code>等函数让SQL语句执行时间延长，从而根据回显时间长短来判断是否存在时间盲注漏洞；<br>  一般利用if和sleep来延长时间；<br>  代码层面和布尔注入一样，至少没有过滤<code>sleep()</code>等函数。</li>
+<li>SQL注入防御方式？<br>  过滤危险字符，过滤关键字，使用预编译</li>
+<li><code>load_file</code>读文件</li>
+</ol>
+<h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/54chensongxia/p/11643787.html">https://www.cnblogs.com/54chensongxia/p/11643787.html</a></p>
+<ol>
+<li><p>DOM型XSS与其他的区别？<br><img src="/./images/1644823689725.png" alt="enter description here">[dom-1]<br>  反射型和存储型XSS的数据要经过后端，数据是通过服务器输出到HTML；DOM型不需要通过后端，数据是通过JS输出到HTML，属于前端javascript代码安全有问题，并且不需要联网。<br>  反射型和存储型的输出位置在http的响应中；DOM型输出在动态构造的节点中。</p>
+</li>
+<li><p>XSS获取cookie？<br>  向存在XSS漏洞的网站中插入一段获取cookie的js代码，在自己的服务器上写一段接收cookie的代码，当用户访问漏洞网站时，就会向我的服务器发送请求，从而获取到它的cookie。<br>  如果使用了同源策略，可以使用<code>&lt;img&gt;</code>标签的src属性来发送数据。</p>
+</li>
+<li><p>XSS能做什么？<br>  通过<code>document.cookie</code>盗取cookie中的信息；<br>  使用JS或CSS破坏页面正常的结构与样式；<br>  流量劫持（通过访问某段具有<code>window.location.href</code>定位到其他页面）；<br>  DOS攻击：利用合理的客户端请求来占用过多的服务器资源，从而是合法用户无法得到服务器响应；<br>  利用iframe、frame等Flash方式，可以以受害者的身份执行一些操作，比如发表文章，转发微博等</p>
+</li>
+<li><p>什么是Http Only？<br>  HttpOnly是Set-Cookie HTTP响应头中包含的附加标志，如果cookie设置了http only属性，就无法通过js脚本去访问cookie，从而防御XSS攻击。（生成cookie时使用HttpOnly标志有助于降低客户端脚本访问受保护cookie的风险（如果浏览器支持它））</p>
+</li>
+<li><p>如何绕过http only？</p>
+</li>
+<li><p>如何检测XSS？<br> 当用户输入内容的全部或者部分，原封不动的出现在源码里时，就可以认为这个输入点存在XSS（关键字符是否被编码再输出）<br> 自动化工具检测：BurpSuite的XSS Validator插件<br> 测试语句：</p>
+</li>
+</ol>
+<ul>
+<li><code>&lt;script&gt;alert(1)&lt;/script&gt;</code> 普通触发</li>
+<li><code>&lt;img src=&quot;&quot; onerror=&quot;alert(1)&quot;&gt;</code>  on事件触发</li>
+<li><code>&lt;iframe src=javascript:alert(1)&gt;</code>  iframe标签触发</li>
+<li><code>&lt;svg&gt;&lt;x&gt;&lt;script&gt;alert(1)&lt;/x&gt;</code>  svg标签触发</li>
+<li><code>&lt;script type=&quot;text/javascript&quot;&gt;window.location.href=&quot;http://test/123&quot;;&lt;/script&gt;</code>  远程站点打cookie</li>
+<li><code>&lt;input onfocus=&quot;alert(&#39;xss&#39;);&quot;&gt;</code>  竞争焦点，从而触发</li>
+</ul>
+<ol start="7">
+<li>xss有cookie一定可以无用户名密码登录吗？<br>基本上是可以的；只要浏览器中有cookie，那么去访问目标页面的时候会使用一存在的cookie去访问，就不用再进行登录验证。</li>
+</ol>
+<h2 id="CSP"><a href="#CSP" class="headerlink" title="CSP"></a>CSP</h2><ol>
+<li>什么是CSP？<br>  CSP就是内容安全策略，浏览器的扩展程序会引入一些较为严格的策略，使扩展程序在默认情况下更加安全，开发者可以创建并强制应用一些规则，管理网站允许加载的内容。<br>  简单来说就是让网站只接受我们指定来源的请求资源。<br>  CSP实质上就是白名单制度，明确告诉客户端，哪些外部资源可以加载和执行。它的实现和执行全部由浏览器完成，开发者只需提供配置。大大增强了网页的安全性，攻击者即使发现了漏洞，也没法注入脚本。</li>
+</ol>
+<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><ol>
+<li>什么是CSRF？<br>  跨站请求伪造简单的说就是攻击者盗用别人的身份，用别人的身份对目标网站进行操作。利用的是网站对用户的信任。<br>  造成原因是因为服务器无法准确判断当前请求是否是合法用户的自定义操作；<br> 主要存在情况就是受害者在某一网站上的登录未过期的情况下，点击了攻击者制作的钓鱼链接，然后攻击者获取到了受害者的cookie等身份信息，就可以冒充受害者去访问这个网站，操作受害者的账号内容。</li>
+<li>CSRF的防御措施？<br>  验证 HTTP Referer 字段：如果Referer不是来自信任网站或者是空白，就有可能是CSRF攻击。（可绕过）<br>  在请求地址中添加 token 并验证：为了防止伪造用户的请求，在HTTP请求中以参数的形式加入一个随机产生的token，并在服务端验证是否有token和token是否正确。<br>  在 HTTP 头中自定义属性并验证<br>  二次验证<br>  验证码防御<br>  尽量使用POST</li>
+<li>CSRF和XSS的区别？<br>  CSRF需要用户登录目标网站，而XSS不需要登录。<br>  CSRF是利用网站的对用户身份校验不严格，来盗用用户身份发起恶意请求，XSS是向目标网站注入JS代码，执行JS代码来篡改网站的内容。</li>
+<li>token该放在哪里？</li>
+</ol>
+<h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><ol>
+<li>什么是文件上传？<br>  利用存在文件上传漏洞的地方将恶意的可执行脚本程序上传到服务器中，获取网站的权限，以便进行下一步操作。<br>  造成文件上传的原因是服务端代码未对客户端上传的文件进行严格的验证和过滤，从而导致可以上传任意文件。</li>
+</ol>
+<h2 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h2><ol>
+<li>如何绕过exit？<br>  方法一：使用<code>php://filter</code>协议，传入构造好的base64字符串，用base64解码的方式写入文件，当php在解码遇到特殊字符时(<code>&lt;、?、&gt;、;</code>)，会跳过这些字符，重新将后面的合法字符组成新的字符串进行解码；base64解码时是以4个byte为一组。<br>  方法二：仍然时使用<code>php://filter</code>协议，先将恶意代码进行base64加密，<code>string.strip_tags</code>会去除空字符、HTML和PHP标记后的结果，所以再用<code>string.strip_tags</code>将exit这段代码过滤掉，然后再将恶意代码解码还原。</li>
+<li>文件包含绕过方式？<br>  %00截断<br>  长路径截断<br>  ？、#、空格绕过</li>
+</ol>
+<p>%00截断原理：php内核由c语言实现，因此使用了c语言中的字符串处理函数，在连接字符串时0字节作为 字符串的结束字符，%00url解码为0x00，magic_quotes_gpc开启时会将%00转义为0两个单体字符，故不具备截断功能。<br>3. 存在文件包含，但不存在文件上传，如何利用？</p>
+<h2 id="渗透测试"><a href="#渗透测试" class="headerlink" title="渗透测试"></a>渗透测试</h2><ol>
+<li>如何判断主机是否在域环境中<br><strong>Windows下</strong></li>
+</ol>
+<ul>
+<li>执行<code>net time /domain</code>，如果当前主机未加入域，则显示找不到域控制器；如果加入了域，并且当前用户为本地用户包括本地管理员，则显示拒接访问；如果加入了域，且当前用户为域用户，则显示域控时间。</li>
+<li>执行<code>ipconfig /all</code>，如果主机加入了域，则<code>主DNS后缀</code>为域名；未加入域则为空。</li>
+<li>执行<code>systeminfo</code>，如果加入了域，则<code>域</code>那一项为域名，未加入域则为<code>workgroup</code>。</li>
+</ul>
+<ol start="2">
+<li>常见getshell的方法</li>
+</ol>
+<ul>
+<li>通过文件上传漏洞上传一句话木马来getshell</li>
+<li>利用编辑器漏洞写shell</li>
+<li>利用解析漏洞getshell，例如使用IIS6.0的服务器，会把其他格式的文件解析为asp文件执行</li>
+<li>如果能登录目标的phpmyadmin，就可以通过执行sql语句将shell写入日志</li>
+<li>文件包含拿shell</li>
+<li>命令执行拿shell，通过执行命令写入shell</li>
+<li>常见CMS拿shell</li>
+</ul>
+<ol start="3">
+<li>权限维持</li>
+</ol>
+<ul>
+<li>使用msf权限维持模块（persistence）生成后门并设置用户登录后自启动；（前提是先获得一个Meterpretershell）</li>
+<li>使用NC，在受害者的主机是上传NC，修改注册表将NC设为自启动，只要在自己的服务器上一直开启监听，那么每当受害者主机开机之后都会主动连接我们的服务器；（在自己的服务器上进行监听，在受害者的主机上执行nc命令，修改注册表，将nc连接命令设为自启动）</li>
+<li>写计划任务</li>
+</ul>
+<p>Windows：</p>
+<ul>
+<li>添加影子账户，只能在注册表里看到；</li>
+<li>Powershell权限维持，在受害机运行下载权限维持脚本的命令，本地开启监听就可以了</li>
+<li>写计划任务</li>
+<li>使用NC</li>
+</ul>
+<ol start="4">
+<li>痕迹清理的方式<br><strong>Windows下</strong></li>
+</ol>
+<ul>
+<li>手动清除日志（开始-程序-管理工具-计算机管理-系统工具-事件查看器-清除日志）</li>
+<li>使用工具清除（wevtuil）</li>
+<li>meterperter自带的清除日志功能</li>
+<li>删除Recent目录下的所有内容（C:\Users\Administrator\Recent），或执行命令<code>del /f /s /q “%userprofile%\Recent*.*</code></li>
+</ul>
+<p><strong>Linux下</strong></p>
+<ul>
+<li>清除history历史命令记录<br>- 编辑history记录文件，删除不想被保存的历史命令（<code>history - r</code>删除当前会话历史记录，<code>history -c</code>删除内存中的所有命令历史，<code>rm .bash_history</code>删除历史文件中的内容）<br>- 利用vim特性删除历史命令（使用vim打开一个文件<code>vi test.txt</code>，设置vim不记录命令，vim会将历史命令记录保存在viminfo文件中<code>:set history=0</code>，打开命令记录文件<code>.bash_history</code>，编辑文件删除历史历史操作命令<code>vsp ~/.bash_history</code>，清楚保存<code>.bash_hostory</code>文件）<br>- 在vim中执行主机不想让别人看见的命令<br>- 修改配置文件<code>/etc/profile</code>，是系统不保存命令记录</li>
+<li>清楚系统日志痕迹（&#x2F;var&#x2F;log&#x2F;btmp   记录所有登录失败信息，使用lastb命令查看；&#x2F;var&#x2F;log&#x2F;lastlog 记录系统中所有用户最后一次登录时间的日志，使用lastlog命令查看；&#x2F;var&#x2F;log&#x2F;wtmp    记录所有用户的登录、注销信息，使用last命令查看；&#x2F;var&#x2F;log&#x2F;utmp    记录当前已经登录的用户信息，使用w,who,users等命令查看；&#x2F;var&#x2F;log&#x2F;secure   记录与安全相关的日志信息；&#x2F;var&#x2F;log&#x2F;message  记录系统启动后的信息和错误日志）<br>- 清空日志文件（清除登录失败的记录，清除登录成功的记录，清除相关日志信息）<br>- 删除&#x2F;替换与当天日期或自己登录的IP相匹配的信息</li>
+<li>清除web入侵痕迹（替换日志ip地址，清除部分相关日志）</li>
+<li>隐藏远程SSH登录记录</li>
+</ul>
+<ol start="5">
+<li>通用代码审计思路</li>
+</ol>
+<ul>
+<li>根据敏感关键字回溯参数传递过程</li>
+<li>查找可控变量，正向追踪变量传递过程</li>
+<li>寻找敏感功能点，通读功能点代码</li>
+<li>直接通读全文代码</li>
+</ul>
+<ol start="6">
+<li><p>状态码<br>  200  请求成功，201 成功请求并创建了新的资源，202已经接受请求但未完成处理，203 非授权信息，204 服务器处理成功但未返回内容，205 服务器处理成功，用户终端应重置文档视图。<br>  301 请求的资源已被永久的移动到新URL 浏览器会提供新的URL，302 资源临时移动 用户继续使用原来的URL，303 查看其他地址，304 所请求的资源未修改 不会返回任何资源。<br>  400 客户端请求的语法错误 服务器无法理解，401 请求要求用户的身份认证，402 保留 将来使用，403 服务器理解请求客户端的请求 但是拒绝执行此请求，404 服务器无法根据客户端的请求找到资源（网页）。<br>  500 服务器内部错误 无法完成请求，301 服务器不支持请求的功能 无法完成请求，502 作为网关或者代理工作的服务器尝试执行请求时 从远程服务器接收到了一个无效的响应，503 由于超载或系统维护 服务器暂时的无法处理客户端的请求，504 充当网关或代理的服务器 未及时从远端服务器获取请求，505 服务器不支持请求的HTTP协议的版本 无法完成处理。</p>
+</li>
+<li><p>印象比较深刻的一道CTF？<br>那是一道文件上传结合文件包含的题目，当成功上传文件后，它会在我们上传的文件内容前面添加一句exit；的php代码，所以当我们包含这个文件的时候就没办法正确执行文件中内容，就需要对exit进行一个绕过；<br>绕过的方法有两种：<br><code>txt=aPD9waHAgcGhwaW5mbygpOyA/Pg==&amp;filename=php://filter/write=convert.base64-decode/resource=demo.php</code><br>一种是使用php:&#x2F;&#x2F;filter协议，使用filter协议对传入的内容进行base64解码，而在PHP的base64解码中，遇到（如&lt;、？、&gt;、；）这些字符时，会跳过它们，只将合法字符进行组合然后解码，base64解码又是以4个字节为一组解码；<br>文件自动添加phpexit已经占了七个字节，在上传文件内容的时候，在编码好的内容前面多加一个字符，那么写进去之后就和phpexit凑成了八个字符，在进行解码的时候这八个字符会乱码，剩下的内容正确解码，这样在包含的时候就能执行文件中的代码。</p>
+</li>
+</ol>
+<p>第二种：方法也是使用php:&#x2F;&#x2F;filter，filter允许使用多个过滤器，我们将上传的内容进行base64编码后，在filter中使用<code>string.strip_tags</code>过滤器可以将php标签包裹的代码过滤掉，也就是把exit；过滤掉了，然后再把我们写入的内容解码，这样包含也能执行里面的代码。</p>
+<p>2020UNCTF中，俄罗斯方块题</p>
+<p>2020第三届“巅峰极客”网络安全技能挑战赛</p>
+<p>2020年第17届全国大学生信息安全与对抗技术竞赛</p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">blckder02</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://www.blckder02.cn/2022/07/21/%E9%97%AE%E9%A2%98%E6%A8%A1%E6%8B%9F/">http://www.blckder02.cn/2022/07/21/%E9%97%AE%E9%A2%98%E6%A8%A1%E6%8B%9F/</a></p>
+    <p style="margin: 5px 0;">版权声明：</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    <p>
+        <span>
+            <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+                蜀ICP备2021017961号-1
+            </a>
+        </span>
+        
+    </p>
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    
+    <link rel="apple-touch-icon" sizes="76x76" href="/null">
+    <link rel="icon" type="image/png" href="/null">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <title>漏洞分析总结 - 百鸟成行</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    
+    <meta name="description" content="">
+    <meta name="author" content="blckder02">
+    <meta name="keywords" content="">
+    <style>
+
+
+    
+    :root{
+        --shadow-color: rgba(0,0,0,0.2);
+        --sec-shadow: rgba(0,0,0,0.03);
+        --shadow-hover-color: rgba(0,0,0,0.28);
+        --first-text-color: #475b6d;
+        --second-text-color: #37475b;
+        --third-text-color: #858585;
+        --default-text-color: #505050;
+        --default-link-color: #007bff;
+        --link-color: #000000;
+        --second-link-color: #4F9BFA;
+        --code-color:rgba(27,31,35,.05);
+        --post-bkg-color: #fff;
+        --page-bkg-color: #f2f5f8;
+        --nav-a-hover-color: #3498db;
+        --post-sec-text-color: #718096;
+        --sec-bkg: #f2f5f8;
+        --color-mode: 'light';
+        --bkg-h: rgba(255,255,255,0.6);
+        --bkg-m: #e1e4e8;
+        --home-title-color: #4169E1;
+        --shadow: 0 4px 10px rgba(0,2,4,0.06),0 0 1px rgba(0,2,4,0.11);
+        --hr-color: #ddd;
+        --bg-t: #f4f4f4;
+        --nav-bkg: rgba(255,255,255,0.6);
+    }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-mode: 'dark';
+  }
+
+  :root:not([data-theme]) {
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+  }
+}
+
+[data-theme='dark'] {
+    --shadow-color: rgba(0,0,0,0.2);
+    --shadow-hover-color: rgba(0,0,0,0.28);
+    --first-text-color: hsla(0,0%,100%,0.92);
+    --second-text-color: hsla(0,0%,100%,0.86);
+    --third-text-color: #a7a9ad;
+    --default-text-color: #505050;
+    --default-link-color: #1589e9;
+    --link-color: #000000;
+    --second-link-color: #30a9de;
+    --post-bkg-color: #252d38;
+    --page-bkg-color: #181c27;
+    --nav-a-hover-color: #3498db;
+    --post-sec-text-color: #a7a9ad;
+    --sec-bkg: #364151;
+    --bkg-h: rgba(255,255,255,0.2);
+    --bkg-m: rgba(255,255,255,0.1);
+    --home-title-color: rgb(226, 82, 90);
+    --code-color:#3e4b5e;
+    --shadow: none;
+    --hr-color: #718096;
+    --bg-t: #364151;
+    --nav-bkg: rgba(13,17,23,0.6);
+}
+
+</style>
+
+
+
+<style>
+#page-main,footer,.p-btn{
+    display: none;
+}
+html,body{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: overlay;
+}
+body{
+    background-color: var(--page-bkg-color);
+    color: var(--second-text-color);
+    overflow-y: scroll;
+}
+a {
+    color: var(--default-link-color);
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover{
+    color: var(--second-link-color);
+}
+.main-content,.post-card-main{
+    margin: 30px;
+}
+
+
+
+@media (max-width: 410px){
+    .post-card-main{
+        max-width: 350px!important;
+    }
+}
+
+@media (max-width: 980px){
+    .post-card-main{
+        max-width: 520px!important;
+    }
+}
+
+
+@media (min-width: 780px){ 
+    h3{
+        font-size: 1.5rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 1280px){ 
+    h3{
+        font-size: 1.7rem;
+        line-height: 1.5em;
+    }
+}
+@media (min-width: 2096px){ 
+    h3{
+        font-size: 1.8rem;
+        line-height: 1.5em;
+    }
+}
+
+.text-center{
+    text-align: center!important;
+}
+.middle-center{
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    height: 100%;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    height: 54px;
+    padding: 0 1.25rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--bkg-m);
+    background-color: var(--nav-bkg);
+}
+header .header__left, header .header__right {
+    display: flex;
+    align-items: center;
+    font-family: rubik,sans-serif,Varela Round;
+}
+header .header__left .logo__text {
+    font-size: 18px;
+    font-weight: 450;
+    padding: 14.5px 10px;
+    border-radius: 5px;
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus {
+    height: 54px;
+    padding: 0 0 0 15px;
+}
+header .header__right .button {
+    color: var(--second-text-color);
+}
+header .header__right .navbar__menus .navbar-menu {
+    display: inline-block;
+    align-items: center;
+    height: 54px;
+    padding: 0 10px;
+    font-size: 16px;
+    line-height: 54px;
+}
+header .header__right .dropdown-icon {
+    display: none;
+    height: 54px;
+    padding: 15px 10px;
+    border: 0;
+    background-color: transparent;
+}
+header .header__right .dropdown-menus {
+    line-height: 2rem;
+    animation: slide-in .15s ease 1;
+    display: none;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(54px + 10px);
+    border-radius: 6px;
+    padding: 24px;
+    background-color: var(--page-bkg-color);
+    border: 1px solid var(--bkg-m);
+    z-index: 9999;
+    justify-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+header .header__right #btn-search, header .header__right #btn-toggle-dark{
+    display: inline-block;
+    padding:  18px 10px;
+    height: 25px;
+}
+header .header__right #btn-dropdown{
+  display: inline-block;
+  padding:  13.5px 0;
+}
+header .header__right .dropdown-menus .dropdown-menu {
+    padding: 10px;
+    color: var(--second-text-color);
+}
+@media screen and (max-width: 764px){
+.navbar__menus {
+    display: none!important;
+}
+.dropdown-icon {
+    display: inline-block!important;
+}
+}
+.p-btn{
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    contain: layout;
+}
+.toc-btn,.click-btn{
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    align-items: center;
+    margin-top: .5rem;
+    font-size: .75rem;
+    background-color: var(--sec-bkg);
+    display: block;
+    padding: 0.9rem;
+    box-shadow: 0 0.3rem 0.6rem rgba(48,55,66,.15);
+    border: none;
+    border-radius: 0.5rem;
+    line-height: 1;
+    color: var(--first-text-color);
+}
+.toc-link{
+    color: var(--second-text-color);
+}
+
+#css-loading h3{
+    font-weight: 500;
+    font-size: 1.4rem;
+    text-align: center;
+    position: fixed;
+    top: 200px;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    animation: cssLoad;
+    animation-delay: 0.3s;
+    -webkit-animation: cssLoad;
+    -webkit-animation-delay: 0.3s;
+}
+@keyframes cssLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.9;
+    }
+}
+
+
+.memorial {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); filter:gray;
+}
+
+
+    .post-copyright:after {
+        position: absolute;
+        color: #fff;
+        background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 496 512'%3E%3Cpath fill='gray' d='M245.8 214.9l-33.2 17.3c-9.4-19.6-25.2-20-27.4-20-22.2 0-33.3 14.6-33.3 43.9 0 23.5 9.2 43.8 33.3 43.8 14.4 0 24.6-7 30.5-21.3l30.6 15.5a73.2 73.2 0 01-65.1 39c-22.6 0-74-10.3-74-77 0-58.7 43-77 72.6-77 30.8-.1 52.7 11.9 66 35.8zm143 0l-32.7 17.3c-9.5-19.8-25.7-20-27.9-20-22.1 0-33.2 14.6-33.2 43.9 0 23.5 9.2 43.8 33.2 43.8 14.5 0 24.7-7 30.5-21.3l31 15.5c-2 3.8-21.3 39-65 39-22.7 0-74-9.9-74-77 0-58.7 43-77 72.6-77C354 179 376 191 389 214.8zM247.7 8C104.7 8 0 123 0 256c0 138.4 113.6 248 247.6 248C377.5 504 496 403 496 256 496 118 389.4 8 247.6 8zm.8 450.8c-112.5 0-203.7-93-203.7-202.8 0-105.5 85.5-203.3 203.8-203.3A201.7 201.7 0 01451.3 256c0 121.7-99.7 202.9-202.9 202.9z'/%3E%3C/svg%3E");
+        content: ' ';
+        height: 10rem;
+        width: 10rem;
+        right: -2rem;
+        top: -2rem;
+        opacity: .1;
+    }
+
+</style>
+
+    
+
+    
+        <!--
+        <link rel="stylesheet" href="/css/page.css" media="print"
+            onload="this.media='all';this.onload=null">
+        <noscript>-->
+            <link rel="stylesheet" href="/css/page.css">
+        <!--</noscript>-->
+    
+    
+    <link rel="stylesheet" href="/css/main.css" media="print" onload="this.media='all';this.onload=null">
+    <noscript>
+        <link rel="stylesheet" href="/css/main.css">
+    </noscript>
+
+    
+    <script src="/js/main.js"></script>
+    
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <body>
+        <header>
+            
+<div class="header__left">
+	<a href="/" class="button"><span class="logo__text">blckder02</span></a>
+</div>
+<div class="header__right">
+	<div class="navbar__menus">
+		
+		<a href="/" class="button">
+			<div class="navbar-menu">首页</div>
+		</a>
+		
+		<a href="/archives/" class="button">
+			<div class="navbar-menu">归档</div>
+		</a>
+		
+		<a href="/categories/" class="button">
+			<div class="navbar-menu">分类</div>
+		</a>
+		
+		<a href="/about/" class="button">
+			<div class="navbar-menu">关于</div>
+		</a>
+		
+	</div>
+	
+	<a href="/search/" class="button">
+		<div id="btn-search">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32">
+				<path
+					d="M192 448c0-141.152 114.848-256 256-256s256 114.848 256 256-114.848 256-256 256-256-114.848-256-256z m710.624 409.376l-206.88-206.88A318.784 318.784 0 0 0 768 448c0-176.736-143.264-320-320-320S128 271.264 128 448s143.264 320 320 320a318.784 318.784 0 0 0 202.496-72.256l206.88 206.88 45.248-45.248z">
+				</path>
+			</svg>
+		</div>
+	</a>
+	
+	<a href="javaScript:void(0);" class="button" id="btn-toggle-dark">
+		<div>
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewbox="0 0 24 24" fill="none"
+				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+			</svg>
+		</div>
+	</a>
+	<a href="javaScript:void(0);" class="dropdown-icon button">
+		<div id="btn-dropdown">
+			<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 1024 1024" width="24" height="24" fill="currentColor"
+				stroke="currentColor" stroke-width="32" stroke-linecap="round">
+				<path
+					d="M903.43 561.52H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 204.31H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24zM903.43 918.73H148.8c-13.25 0-24-10.75-24-24s10.75-24 24-24h754.63c13.25 0 24 10.75 24 24s-10.75 24-24 24z"
+					fill="currentColor"></path>
+			</svg>
+		</div>
+	</a>
+	<div class="dropdown-menus" id="dropdown-menus">
+		
+		<a href="/" class="dropdown-menu button">首页</a>
+		<br>
+		
+		<a href="/archives/" class="dropdown-menu button">归档</a>
+		<br>
+		
+		<a href="/categories/" class="dropdown-menu button">分类</a>
+		<br>
+		
+		<a href="/about/" class="dropdown-menu button">关于</a>
+		<br>
+		
+	</div>
+</div>
+
+        </header>
+        <div id="top"></div>
+        <div id="page-main" class="main-content">
+        <div class="mg-top">
+            
+
+<article class="page">
+<div id="post-meta-m">
+    <div class="post-meta" id="post-meta">
+  <h3>漏洞分析总结</h3>
+    
+      <span class="post-meta-label">
+        blckder02
+      </span>
+    
+    
+      <span class="post-meta-label">
+        <span class="p-dot"></span>
+        <time datetime="2022-07-20 15:17" pubdate>
+          2022-07-20
+        </time>
+      </span>
+    
+    
+      
+      <span class="post-meta">
+        <span class="p-dot"></span>
+        共 2.4k 字
+      </span>
+    
+    
+    
+  </div>
+  
+</div>
+<div class="article-m">
+  <div class="post-toc">
+    
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#URLDNS"><span class="toc-number">1.</span> <span class="toc-text">URLDNS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC%E9%93%BE"><span class="toc-number">2.</span> <span class="toc-text">CC链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Fastjson"><span class="toc-number">3.</span> <span class="toc-text">Fastjson</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jackson"><span class="toc-number">4.</span> <span class="toc-text">Jackson</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring"><span class="toc-number">5.</span> <span class="toc-text">Spring</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shiro"><span class="toc-number">6.</span> <span class="toc-text">Shiro</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%83%B3%E5%9C%A8%E5%8E%9F%E5%85%AC%E5%8F%B8%E5%B9%B2%E4%BA%86"><span class="toc-number">7.</span> <span class="toc-text">为什么不想在原公司干了</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9%E8%BF%90%E8%90%A5%E5%B2%97"><span class="toc-number">8.</span> <span class="toc-text">为什么选择运营岗</span></a></li></ol>
+    
+  </div>
+    <div id="article">
+      <div id="post-content" class="markdown-body textretty">
+        <h2 id="URLDNS"><a href="#URLDNS" class="headerlink" title="URLDNS"></a>URLDNS</h2><p>这条链准确的说达不到”利用”的目的，只是适合在检测反序列化漏洞时使用；<br>通过初始化⼀个<code>java.net.URL</code>对象，作为 key 放在<code>java.util.HashMap</code>中；然后，设置这个 URL 对象的 hashCode 为初始值 -1 ，这样反序列化时将会重新调用 hashCode()方法计算它的 hashCode 值，在该方法调用的过程中，就会触发DNS请求。（getByName(host)触发）</p>
+<h2 id="CC链"><a href="#CC链" class="headerlink" title="CC链"></a>CC链</h2><p>CC 1-7的链涉及两部分 Commons Collections 版本；</p>
+<p><strong>common collections3.x (3.1-3.2.1)</strong><br>版本有CC1、3、5、6、7；</p>
+<p>cc1有两条利用链，lazymap链和transformedmap链，核心触发点都是InvokerTransformer 类里面的 transform 方法可以通过反射调用任意类的任意方法来实现RCE；<br>它们的不同点在于一个是当调用lazymap#get()方法找不到值时调用transform()，一个是当使用transformedmap#put()写入元素时调用transform()；<br>cc1这两条链只能在 JDK 版本小于 8u71时才能用，因为 8u71 之后对两条链都用到的<code>AnnotationInvocationHandler</code>类的 readObject 方法做了更改。（无法再执行 set 或 put 操作）</p>
+<p>cc3的触发过程是通过LazyMap.get()方法调用到transform()方法，然后使用 javassist 生成一个恶意类，把恶意类的字节码存入了TemplatesImpl对象中，调用了 transform()方法后会实例化这个对象，同时就加载了恶意字节码，从而触发RCE；<br>前半部分调用到 transform() 方法的过程和cc1一样可以使用lazymap或者transformedmp链，所以仍然只能在 JDK 版本小于8u71时使用。</p>
+<p>cc5则是绕过了 JDK 版本的限制，从 BadAttributeValueExpException 的 readObject() 方法入手来调用到 lazymap#get() ，从而调用到  transform() 方法。（TiedMapEntry.toString() 到 lazyMap）</p>
+<p>cc6是从 HashMap 的 readObject() 方法入手，通过TiedMapEntry.getValue() 调用到 lazymap#get()。</p>
+<p>cc7 是从Hashtable.readObject() 方法入手，通过AbstractMap.equals() 方法调用到 lazymap#get()。</p>
+<p><strong>commoncollections4.x (4.0-4.3)</strong> CC2、CC4<br>4.0版本中对LazyMap类做了修改（删除了lazyMap#decode()）</p>
+<p>cc2是从 PriorityQueue.readObject() 入手，通过TransformingComparator.compare() 方法调用到 transform() ，然后使用 javassist 生成恶意类，将其存入了TemplatesImpl对象中，最后被实例化加载触发RCE。<br>cc4相当于CC2与CC3的结合（和CC2一样从PriorityQueue.readObject() 入手，通过TrAXFilter#TrAXFilter() 来实例化 javassist 生成的恶意类。）</p>
+<h2 id="Fastjson"><a href="#Fastjson" class="headerlink" title="Fastjson"></a>Fastjson</h2><p>这系列漏洞产生的主要是跟fastjson反序列化的特点有关，可以在 json 数据中通过<code>@type</code>字段来指定反序列化返回的类，一旦有参数可控、可利用的类，就可以传入恶意参数并且反序列化为指定类，从而造成反序列化攻击。<br>Fastjson的防御措施是从1.2.25版本开始增加了一个autotype字段来开关自动检测，默认是开启的，还有<code>checkAutoType()</code>方法来对反序列化的类型进行黑白名单校验。<br>攻击者对它的绕过方式也主要是围绕黑白名单展开。</p>
+<p><strong>1.2.24版本</strong><br>这个时候还没有添加 autotyte，可以指定反序列化类型为 TemplatesImpl，这个类的一个成员变量的 get() 方法中对<code>_bytecodes</code>参数进行了实例化，这个参数是可控的，所以将一个恶意类的字节码 base64 编码后传进去，反序列化时会调用成员变量的 get() 方法，从而加载并实例化恶意类。</p>
+<p><strong>&lt;&#x3D;1.2.41</strong><br>从1.2.25版本开始增加了类型检测，将前面使用的类加入了黑名单。<br>但是对类名只做了一次简单检测，通过对类名添加指定特殊字符（比如在类的前面加<code>L</code>，后面加<code>;</code>），即可绕过，在加载过中会自动把字符去除，不影响正常反序列化。</p>
+<p><strong>1.2.42</strong><br>这个版本是将类名中的<code>L</code>和<code>;</code>去除后再做的黑名单校验。<br>但是只去除了一次，双写即可绕过。</p>
+<p><strong>1.2.43</strong><br>它对类名中的<code>L</code>和<code>;</code>进行了重复去除，再进行黑名单校验。<br>但是还有一种字符绕过方式，就是在类名前面添加<code>[</code>，后面添加<code>[&#123;</code>，在加载过程中这些字符也会被自动去除，不影响反序列化。（这是根据代码逻辑推出来的）</p>
+<p><strong>&lt;&#x3D;1.2.45</strong><br>修复了两种字符绕过的方式。寻找黑名单中没有的类进行利用。</p>
+<p><strong>&lt;&#x3D;1.2.47</strong><br>将之前利用的类都添加进了黑名单。<br>这里有一种通用的绕过方式，当反序列化的对象是<code>java.lang.Class</code>时，会调用<code>TypeUtils.loadClass()</code>，它有一个<code>cache</code>值默认为 true，然后就会把Class类的<code>val</code>参数添加进一个<code>mapping</code>中，这里就可以把<code>val</code>参数设为之前可利用的类，无论是否在黑名单中。当调用 checkAutotype() 时，就能直接从mapping中获取到可利用的类，就绕过了黑名单校验。</p>
+<p><strong>&lt;&#x3D;1.2.68</strong><br>把<code>java.lang.Class</code>也加入了黑名单，只能寻找其他黑名单中没有的可利用类。</p>
+<p><strong>&lt;&#x3D;1.2.80</strong><br>(可以在特定条件下绕过 AutoType 关闭限制加载远程对象进行反序列化)</p>
+<p>有好几条利用链，但是差不多都是一个原理；<br>构造两条 json 数据，第一条里写入两个<code>@type</code>字段，第一个值为<code>java.lang.Exception</code>，第二个type得是一个可利用的Exception类型，这个类需要有一个对象类型的成员变量，并且这个对象类会从指定远程地址中加载资源，这样就能在远程地址放一个恶意类，会被加载尽力，然后成员变量的 set 或 get 方法是中会实例化这个恶意类。</p>
+<p>第二条 json 数据就是指定<code>@type</code>类型为前面的对象类，并且传入含有恶意类的远程地址。</p>
+<p>也就是说要通过<code>java.lang.Exception</code>引入特殊的 Exception 类，从而将它的成员变量类型添加进 mapping，构造一个异常，捕获异常后就反序列化第二天 json 数据，直接从 mapping 中获取利用类，绕过黑名单检测，进而加载并实例化远程地址的恶意类。</p>
+<h2 id="Jackson"><a href="#Jackson" class="headerlink" title="Jackson"></a>Jackson</h2><p>Jackson中是通过<code>DefaultTyping</code>字段来控制反序列化类型的自动检测，默认是关闭的，需要显示的开启才能按照指定的类型进行反序列化，不像fastjson中的 Autoype 默认开启，更加安全。</p>
+<h2 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h2><p><strong>Spring Security</strong><br>Spring Security 是一种包含身份验证、授权和访问控制的安全框架。<br>当它允许<code>forward</code>和<code>include</code>调度类型时，应用程序就可能通过转发或包含将请求跳转到更高的受保护的权限端点，从而达到权限绕过的目的。</p>
+<p>比如页面a是允许匿名访问的页面，但是在这个页面上进行了转发操作，转发到了页面b，页面b是一个需要权限认证才能访问的页面，但是通过a页面来访问b页面就只会验证访问a页面的权限，不会验证访问b页面的权限。</p>
+<h2 id="Shiro"><a href="#Shiro" class="headerlink" title="Shiro"></a>Shiro</h2><p>Shiro身份验证流程：</p>
+<ol>
+<li>用户通过用户名和密码登录应用程序</li>
+<li>Shiro 会从应用程序的数据存储中检索用户的账号信息，以及与该账号相关的角色或权限</li>
+<li>Shrio 验证用户输入的密码与存储的密码是否一致</li>
+<li>如果密码准确， Shiro就会创建一个 Sunbject 实例来表示经过身份验证的用户</li>
+<li>Subject实例与用户的角色和权限相关联</li>
+<li>应用程序就可以通过Subject实例来对用户进行访问控制</li>
+</ol>
+<p>信息摘要<br>性能问题</p>
+<p>基础知识研究明白</p>
+<h2 id="为什么不想在原公司干了"><a href="#为什么不想在原公司干了" class="headerlink" title="为什么不想在原公司干了"></a>为什么不想在原公司干了</h2><p>当初选择安全研究岗位是因为在学校里面学习安全的时候接触到技术方面的知识比较多，也觉得从事安全研究行业能更深入的了解某些技术手段。但是实习之后发现公司需要研究的东西和自己想的不是一回事，我干的事大部分就是漏洞分析和漏洞挖掘方面，我觉得这两件事过于单一，没有直接的价值体现。而且乙方的安全大多都是为甲方安全服务的。现在有机会到甲方从事安全工作，当然是自身价值最直接的体现。<br>在甲方能够直观的了解整个安全体系的建设过程并且参与其中，能够清晰的知道每一项安全工作对公司的重要性。也有更多的机会的让我接触到企业安全的真实场景。<br>而且原神是我一直在玩的一款游戏，能够进入米哈游工作也算是游戏迷的一个愿望。<br>（想深入了解米哈游的文化理念，希望能成为其中的一份子。）</p>
+<h2 id="为什么选择运营岗"><a href="#为什么选择运营岗" class="headerlink" title="为什么选择运营岗"></a>为什么选择运营岗</h2><p>我有了解到安全运营岗位能接触到的安全环节比较多，从业务开发到风险修复，每个环节都能学到很多东西，对自身的能力提升有很大作用。而且我本来也是做漏洞方面的，对业务潜在的漏洞和已发现的漏洞都能充分理解，从而能很好地协调各部门配合对漏洞进行修复。算是将我的漏洞知识运用到实际的企业场景中，这也是我想达到的一个目标。</p>
+
+      </div>
+    </div>
+</div>
+
+
+<div class="post-footer">
+  
+
+  <div class="post-copyright">
+    <p style="margin: 5px 0;">文章作者：<a href="/">blckder02</a></p>
+    <p style="margin: 5px 0;">文章链接：<a href="http://www.blckder02.cn/2022/07/20/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93/">http://www.blckder02.cn/2022/07/20/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93/</a></p>
+    <p style="margin: 5px 0;">版权声明：</p>
+  </div>
+  
+</div>
+
+    <!-- Comments -->
+    <div class="comments">
+        
+        
+    </div>
+
+</article>
+
+
+        </div>
+        
+<footer class="text-center">
+    
+    
+    
+    <p>
+        <span>
+            <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+                蜀ICP备2021017961号-1
+            </a>
+        </span>
+        
+    </p>
+    
+    
+    
+    <p>&copy;  2020 - 2021&nbsp;&nbsp;Theme Miracle</p>
+    
+    <p>Powered by <a href="https://hexo.io" target="_blank">Hexo</a> | Theme by <a href="https://github.com/hifun-team/hexo-theme-miracle" target="_blank">Miracle</a></p>
+    
+    
+</footer>
+
+<div class="p-btn">
+    
+        <a class="toc-btn" id="toc-btn"><i id="i-menu"></i></a>
+    
+    <a href="#top" class="click-btn">
+      <i id="i-up"></i>
+    </a>
+</div>
+
+<!-- SCRIPTS -->
+
+
+
+
+
+
+
+<script>
+    document.getElementById("btn-dropdown").addEventListener('click', () => {
+      toggleClass("#dropdown-menus","display-inline");
+    });
+    console.log('\n' + ' %c Powered by Hexo Theme Miracle ' + ' %c https://github.com/hifun-team/hexo-theme-miracle ' + '\n' + '\n', 'color: #fff; background: #4F9BFA; padding:5px 0;', 'background: #FFF; padding:5px 0;');
+
+    
+
+    
+      document.addEventListener('copy', function (event) {
+      const clipboardData = event.clipboardData || window.clipboardData;
+      if (!clipboardData) { return; }
+      const text = window.getSelection().toString();
+      if (text) {
+        event.preventDefault();
+        clipboardData.setData('text/plain', text + '本文章由 blckder02 撰写，转载请注明来源喔。');
+      }
+    });
+    
+  /* 小彩蛋: 饮茶先啦 */
+  setTimeout(() => {
+    var time = new Date();
+    if (time.getHours() == 15) {
+      let comment = document.createComment(' 三点几嚟！饮茶先啦！ ');
+      document.body.insertBefore(comment, document.getElementsByTagName('header')[0]);
+    }
+  },1);
+    
+</script>
+
+
+<script>
+    var postImg = document.querySelectorAll("article[class=page] img");
+    for (let imgi = 0; imgi < postImg.length; imgi++) {
+        postImg[imgi].onclick = () => {
+            let zoomImg = document.createElement("div");
+            zoomImg.id = "zoomImg";
+            zoomImg.innerHTML = `<div id="zoom-picture"></div>
+    <div class="poptrox-overlay"
+        style="position: fixed; left: 0px; top: 0px; z-index: 20000; width: 100%; height: 100%; text-align: center; cursor: zoom-out; opacity: 1;">
+        <div style="display:inline-block;height:100%;vertical-align:middle;"></div>
+        <div
+            style="position:absolute;left:0;top:0;width:100%;height:100%;background:#000000;opacity:0;filter:alpha(opacity=0);">
+        </div>
+        <div class="poptrox-popup"
+            style="display: inline-block; vertical-align: middle; position: relative; z-index: 1; cursor: zoom-out; min-width: 10px; min-height: 10px; width: auto; height: auto;">
+            <div class="loader" style="display: none;"></div>
+            <div class="pic" style="text-indent: 0px;"><img
+                    src="${ postImg[imgi].srcset || postImg[imgi].src }" alt="Loading..."
+                    style="vertical-align: bottom; max-width: 85vw; max-height: 85vh;"></div>
+        </div>
+    </div>`;
+            document.body.appendChild(zoomImg);
+                document.querySelector("#zoomImg").onclick = () => {
+                    document.querySelector("#zoomImg").remove();
+                }
+        }
+    }
+    
+</script>
+
+
+
+
+    <script>
+        query("#toc-btn")[0].onclick = () => {
+            if (query(".post-toc")[0].innerHTML) {
+                toggleClass(".post-toc", "display-inline");
+            }
+        }
+
+        if (!query(".post-toc")[0].innerHTML) {
+            addClass("#toc-btn","display-none");
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+        </div>
+        <div id="css-loading">
+            <h3 class="text-center">加载中...</h3>
+        </div>
+        
+    </body>
+</html>
